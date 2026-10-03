@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { captureWav } from './capture';
 
 const GOAL="I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.";
+const FIXTURES={'en-IN':GOAL,'kn-IN':'ನಾನು ಸಭೆಗೆ ತಡವಾಗುತ್ತಿದ್ದೇನೆ. ಅನನ್ಯ ಅವರಿಗೆ ತಿಳಿಸಿ, ನಾಲ್ಕೂವರೆಗೆ ಆಗುತ್ತದೆಯೇ ಕೇಳಿ, ಅವರ ಕಚೇರಿ ಬಳಿ ಪಾರ್ಕಿಂಗ್ ಹುಡುಕಿ, ಐದು ನಿಮಿಷಕ್ಕಿಂತ ಹೆಚ್ಚು ಆಗದಿದ್ದರೆ ಇಂಧನ ತುಂಬಿಸಿ.','hi-IN':'Meeting ke liye late ho raha hoon. Ananya ko batao, 4:30 works poochho, office ke paas parking dhundo, aur fuel agar five minutes se zyada detour nahi hota.'};
+const SCENARIOS=[['parking-change','Parking disappears'],['counter-offer','Ananya offers 4:45'],['no-answer','No answer · two attempts'],['fuel-budget','Fuel exceeds budget'],['requirement-change','User removes fuel'],['service-failure','Fuel service fails'],['late-arrival','Traffic makes arrival too late']];
 const labels={PLANNED:'Queued',READY:'Ready',EXECUTING:'Checking',WAITING_ON_EXTERNAL:'Waiting on Ananya',REPLANNING:'Replanning',AWAITING_CONFIRMATION:'Needs approval',COMPLETED:'Done',BLOCKED:'Needs attention',SKIPPED:'Omitted',CANCELLED:'Cancelled',FAILED:'Failed'};
 const time=value => { if (!value) return '—'; const [h,m]=value.split(':').map(Number); return `${h%12 || 12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`; };
+const canonical=value=>Array.isArray(value)?value.map(canonical):value && typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
 
 export default function MissionDashboard() {
   const [goal,setGoal]=useState(GOAL);
@@ -12,6 +15,7 @@ export default function MissionDashboard() {
   const [playing,setPlaying]=useState(false);
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
+  const [scenario,setScenario]=useState('parking-change'),[replayRequest,setReplayRequest]=useState(null),[guardResult,setGuardResult]=useState('');
   const [heard,setHeard]=useState('');
   const [voiceMissionId,setVoiceMissionId]=useState(null);
   const [captureStatus,setCaptureStatus]=useState('Not recorded'),[playbackStatus,setPlaybackStatus]=useState('Waiting for Timbre');
@@ -19,7 +23,12 @@ export default function MissionDashboard() {
   const stopCapture=useRef(null),captureTimer=useRef(null),audioPlayer=useRef(null),voiceRequest=useRef(null);
   const state=useRef(null),lock=useRef(false),recognition=useRef(null),lastSpoken=useRef(0),startRequest=useRef(null);
   const waiters=useRef([]);
-  function accept(value) { state.current=value;setMission(value);localStorage.setItem('driveos-mission',value.id); }
+  const staleConfirmation=useRef(null);
+  function accept(value) {
+    if (state.current?.id!==value.id) staleConfirmation.current=null;
+    else if (state.current.confirmation && state.current.confirmation.id!==value.confirmation?.id) staleConfirmation.current=state.current.confirmation.id;
+    state.current=value;setMission(value);localStorage.setItem('driveos-mission',value.id);
+  }
   useEffect(() => {
     fetch('/api/health').then(response=>response.json()).then(setCapabilities).catch(()=>setError('API unavailable.'));
     const id=localStorage.getItem('driveos-mission');
@@ -112,6 +121,7 @@ export default function MissionDashboard() {
   }
   async function start(text=goal,demo='none') {
     if (lock.current) return;
+    setPlaying(false);window.speechSynthesis?.cancel();audioPlayer.current?.pause();setAudioUrl('');setHeard('');setCaptureStatus('Not recorded');setVoiceMissionId(null);
     lock.current=true;setBusy(true);setError('');
     // Retain a start key across network retries, never create two missions accidentally.
     if (!startRequest.current || startRequest.current.transcript!==text || startRequest.current.demo!==demo)
@@ -119,9 +129,29 @@ export default function MissionDashboard() {
     try {
       const response=await fetch('/api/missions/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(startRequest.current)});
       const value=await response.json();if (!response.ok) throw new Error(typeof value.detail==='string'?value.detail:'Could not start mission.');
-      lastSpoken.current=0;accept(value);startRequest.current=null;setPlaying(value.status==='EXECUTING');
+      lastSpoken.current=0;accept(value);setReplayRequest({...startRequest.current});setGuardResult('');startRequest.current=null;setPlaying(value.status==='EXECUTING');
     } catch (failure) { setError(failure.message); }
     finally {lock.current=false;setBusy(false);waiters.current.shift()?.();}
+  }
+  function resetDemo() {
+    setPlaying(false);state.current=null;setMission(null);setGoal(GOAL);setError('');setHeard('');setVoiceMissionId(null);setCaptureStatus('Not recorded');setPlaybackStatus('Waiting for Timbre');setAudioUrl('');setReplayRequest(null);setGuardResult('');voiceRequest.current=null;startRequest.current=null;lastSpoken.current=0;
+    window.speechSynthesis?.cancel();audioPlayer.current?.pause();localStorage.removeItem('driveos-mission');
+  }
+  async function checkGuard(kind) {
+    if (lock.current || !state.current) return;
+    lock.current=true;setBusy(true);setGuardResult('');
+    const current=state.current;
+    try {
+      const duplicate=kind==='duplicate';
+      const body=duplicate?replayRequest:{request_key:crypto.randomUUID(),expected_revision:kind==='revision'?current.revision-1:current.revision,...(kind==='confirmation'?{confirmation_id:staleConfirmation.current,approved:true}:{})};
+      const url=duplicate?'/api/missions/start':`/api/missions/${current.id}/${kind==='confirmation'?'confirm':'advance'}`;
+      const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const value=await response.json();const restored=await fetch('/api/missions/'+current.id).then(r=>r.json());
+      const unchanged=JSON.stringify(canonical(restored))===JSON.stringify(canonical(current));
+      if ((duplicate?response.ok && value.id===current.id:response.status===409) && unchanged)
+        setGuardResult(duplicate?'Duplicate request returned the same mission. No new effects.':'Stale '+kind+' rejected. Committed mission state is unchanged.');
+      else throw new Error('Guard check did not match the expected preserved state.');
+    } catch(failure) {setError(failure.message);} finally {lock.current=false;setBusy(false);waiters.current.shift()?.();}
   }
   async function change(operation,changes) {
     if (await send(operation,{changes})) setPlaying(true);
@@ -156,30 +186,39 @@ export default function MissionDashboard() {
   const budgetBlocked=capabilities?.request_budget?.remaining<voiceCalls;
   return <main className="v2">
     <header><strong>DriveOS<span>●</span></strong><small>MISSION ENGINE V2 · SYNTHETIC WORLD</small></header>
-    <section className="intro"><p className="eyebrow">KEEP DRIVING. THE MISSION CONTINUES.</p><h1>One mission.<br/>Ready for change.</h1><p>Meeting, parking and fuel, handled together.</p></section>
+    <section className="intro"><p className="eyebrow">VOICE-FIRST MISSION EXECUTION</p><h1>You drive.<br/>It handles everything<br/>around the drive.</h1><p>One compound goal. Accountable actions. Recovery when the world changes.</p><div className="architecture-strip">Prisma hears <span>→</span> Interpreter proposes <span>→</span> Policy validates <span>→</span> DriveOS executes <span>→</span> Timbre speaks</div></section>
     <section className="mission" aria-label="Active mission">
       <div className="heading"><h2>YOUR MISSION</h2><span role="status">{mission?.status.replaceAll('_',' ') || 'READY'}</span></div>
       <h3>{active?mission.goal:'Get to the meeting with the details handled'}</h3>
       {active && <p className="note" aria-label="Mission identity">Mission ID: {mission.id} · revision {mission.revision}</p>}
       {!active && <><label htmlFor="v2goal">Mission goal</label><textarea id="v2goal" value={goal} onChange={event => {setGoal(event.target.value);startRequest.current=null;}} disabled={busy}/></>}
-      <div className="controls"><button className="primary" disabled={busy || recording} onClick={() => start(goal)}>Start mission</button><button disabled={busy || recording} onClick={() => start(GOAL,'parking-change')}>Run changing-world demo</button><button onClick={listen} disabled={busy || recording}>Browser voice {active?'change':'mission'}</button>{active && <button onClick={() => setPlaying(!playing)} disabled={busy || mission.status!=='EXECUTING'}>{playing?'Pause demo':'Continue mission'}</button>}</div>
-      <p className="note">Deterministic simulation. Starting authorizes the requested demo contact and calendar actions. The changing-world demo fills the garage after selection, then replans autonomously. No real calls, purchases or reservations. Closing this console pauses progression; mission state is saved.</p>
-      <div className="controls" aria-label="Gnani voice mission"><label>Planner <select disabled={recording || busy} value={voiceMode} onChange={event=>setVoiceMode(event.target.value)}><option value="speech_test">Prisma / DriveOS Interpreter / Timbre</option></select></label><label>Speech language <select disabled={recording || busy} value={language} onChange={event=>setLanguage(event.target.value)}><option value="en-IN">English</option><option value="kn-IN">Kannada</option><option value="hi-IN">Hindi / Hinglish</option></select></label><button className="primary" disabled={busy || !capabilities?.speech_configured || (!recording && budgetBlocked)} onClick={voice}>{recording?'Stop and run voice mission':'Start Gnani voice mission'}</button>{voiceRequest.current && <button disabled={busy} onClick={submitVoice}>Retry same recording</button>}</div>
+      <div className="controls"><button className="primary" disabled={busy || recording} onClick={() => start(GOAL,'parking-change')}>Run changing-world demo</button><button className="primary" disabled={busy || !capabilities?.speech_configured || (!recording && budgetBlocked)} onClick={voice}>{recording?'Stop and run voice mission':'Start Gnani voice mission'}</button><button disabled={busy || recording} onClick={resetDemo}>Reset demo</button>{active && <button onClick={() => setPlaying(!playing)} disabled={busy || mission.status!=='EXECUTING'}>{playing?'Pause demo':'Continue mission'}</button>}</div>
+      <details><summary>Judge mode · bounded failure scenarios</summary><div className="controls"><label>Scenario <select value={scenario} disabled={busy || recording} onChange={event=>setScenario(event.target.value)}>{SCENARIOS.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><button disabled={busy || recording} onClick={()=>start(GOAL,scenario)}>Run scenario from clean world</button></div><p className="note">Each run creates an isolated synthetic world. Existing mission records remain saved. Counter-offers pause for approval; failures escalate honestly.</p></details>
+      <p className="note">Synthetic external actions · persistent mission state · {capabilities?.speech_configured?'Prisma / Timbre configured':'Configure Gnani for real voice'}{budgetBlocked?' · voice needs at least three remaining requests':''}.</p>
+      <details open={!active}><summary>Voice settings · transcript fixtures · demo scope</summary>
+      <p className="note">Starting authorizes the requested synthetic contact and calendar actions. The changing-world demo fills the garage after selection. No real calls, purchases or reservations. Closing this console pauses progression; mission state is saved.</p>
+      <button disabled={busy || recording} onClick={() => start(goal)}>Run text mission</button>
+      <div className="controls" aria-label="Gnani voice mission"><label>Planner <select disabled={recording || busy} value={voiceMode} onChange={event=>setVoiceMode(event.target.value)}><option value="speech_test">Prisma / DriveOS Interpreter / Timbre</option></select></label><label>Speech language <select disabled={recording || busy} value={language} onChange={event=>setLanguage(event.target.value)}><option value="en-IN">English</option><option value="kn-IN">Kannada</option><option value="hi-IN">Hindi / Hinglish</option></select></label>{voiceRequest.current && <button disabled={busy} onClick={submitVoice}>Retry same recording</button>}</div>
       <p className="note" role="status">{recording?'Microphone recording · up to 15 seconds':capabilities?.speech_configured?'Real Prisma and Timbre; synthetic external actions. DriveOS Interpreter supports documented fixtures only (implemented by MockEvon; no model inference).':'Configure backend Gnani credentials to enable real speech.'}</p>
+      <details><summary>What to say · {language==='kn-IN'?'Kannada':language==='hi-IN'?'Hinglish':'English'} fixture</summary><p className="fixture" lang={language.split('-')[0]}>{FIXTURES[language]}</p><p className="note">Finite fixture scope: Ananya, 4:30 and five shared detour minutes. Unsupported goals escalate. Spoken summaries are currently English.</p></details>
       {capabilities?.request_budget && <p className="note" role="status">Local request allowance: {capabilities.request_budget.remaining} calls left ({capabilities.request_budget.used} used of {capabilities.request_budget.maximum}). {budgetBlocked?`A new voice mission needs ${voiceCalls} calls. Voice start is paused until the free-credit balance is checked and the local allowance is updated.`:'This allowance counts requests, not provider credits.'}</p>}
+      </details>
       {audioUrl && <audio ref={audioPlayer} src={audioUrl} controls aria-label="Timbre mission response" onPlaying={()=>setPlaybackStatus('Timbre playback started')} onEnded={()=>setPlaybackStatus('Timbre playback completed')} onError={()=>setPlaybackStatus('Playback failed · retry using the audio controls')}/>}
       {active && mission.mode!=='simulation' && ['COMPLETED','ESCALATED','AWAITING_CONFIRMATION'].includes(mission.status) && <button disabled={busy} onClick={()=>speakResult()}>Speak current result with Timbre</button>}
       {captureStatus!=='Not recorded' && <section aria-label="Voice pipeline result" className="route-summary" aria-live="polite"><h2>VOICE MISSION RESULT</h2><p>Capture: {captureStatus}</p><p>Prisma transcript: {heard || 'Waiting for transcription'}</p><p>Mission: {voiceActive?mission.id:'Waiting for mission creation'} · {voiceActive?mission.status.replaceAll('_',' '):'Pending'}</p><p>Progress: {voiceActive?mission.current_action:'Waiting'} · Replans: {voiceActive?replans.length:0}</p><p>{playbackStatus}</p></section>}
       {error && <p className="error" role="alert">{error}</p>}{heard && <p className="note">Heard: {heard}</p>}
       {active && <>
         <div className="mission-metrics"><div><span>Current action</span><strong>{mission.current_action}</strong></div><div><span>Call with Ananya</span><strong>{call.replaceAll('_',' ')}</strong></div><div><span>Simulated ETA</span><strong>{time(mission.eta.arrival)}</strong><small>+{mission.eta.added_minutes} min route detour</small></div></div>
+        <div className="constraint-chips"><span>Shared detour ≤ {mission.requirements.max_detour_minutes} min</span><span>Used {mission.eta.added_minutes} min</span><span>Fuel {mission.requirements.include_fuel?'optional within budget':'removed'}</span><span>World revision {mission.world.version}</span><span>{mission.mode==='simulation'?'Text rehearsal · browser speech fallback':'Real Prisma → Timbre'}</span></div>
+        {replans.length>0 && <aside className="replan-banner" aria-live="polite"><p className="eyebrow">WORLD CHANGE → REPLANNING</p><strong>{replans[replans.length-1].message}</strong><p>Same mission · completed effects retained · {replans[replans.length-1].explanation?.selected_alternative || 'Checking the next valid action'}</p></aside>}
         {mission.confirmation && <aside className="confirmation" aria-label="Action confirmation"><h4>Decision needed</h4><p>{mission.confirmation.label}. {mission.confirmation.action==='plan.review'?'No action runs until the proposed plan is approved.':'This is outside the original meeting-time mandate.'}</p><button className="primary" disabled={busy} onClick={() => confirm(true)}>Approve exact action</button> <button disabled={busy} onClick={() => confirm(false)}>Decline</button></aside>}
         <section aria-label="Task timeline"><h2>TASK TIMELINE</h2><ol className="tasks">{mission.tasks.map((task,index) => <li key={task.id} data-state={task.status}><span className="task-number">{index+1}</span><div><strong>{task.description}</strong><p>{labels[task.status]}{task.output?.name?` · ${task.output.name}`:''}</p>{task.dependencies.length>0 && <small>After {task.dependencies.map(id => mission.tasks.find(item => item.id===id)?.description).join(', ')}</small>}<details><summary>Progress history</summary>{task.history.map((item,i) => <p key={i}>{item.message}</p>)}</details></div><span className="task-state">{labels[task.status]}</span></li>)}</ol></section>
-        <div className="route-summary"><h2>ROUTE & MEETING</h2><p>Meeting: {time(mission.world.calendar.time)} · Parking: {mission.route.parking?.name || 'Not selected'} · Fuel: {mission.route.fuel?.name || 'Not selected'}</p></div>
+        <div className="route-summary"><h2>WORLD / ROUTE & MEETING</h2><p>Meeting: {time(mission.world.calendar.time)} · Parking: {mission.route.parking?.name || 'Not selected'} · Fuel: {mission.route.fuel?.name || 'Not selected'}</p><p className="note">Office garage: {mission.world.parking[0].available?'available':'full'} · East lot: {mission.world.parking[1].available?'available':'full'} · Base travel: {mission.world.maps.base_minutes} min · Fuel service: {mission.world.fuel_service_failed?'failed':'available'}</p></div>
         <section aria-label="Mid-mission requirements"><h2>CHANGE A REQUIREMENT</h2><div className="controls"><label>Maximum added route time <select value={mission.requirements.max_detour_minutes} disabled={busy} onChange={event => change('requirements',{max_detour_minutes:Number(event.target.value)})}><option value={5}>5 minutes</option><option value={3}>3 minutes</option><option value={2}>2 minutes</option><option value={0}>No detour</option></select></label><label><input type="checkbox" checked={mission.requirements.include_fuel} disabled={busy} onChange={event => change('requirements',{include_fuel:event.target.checked})}/> Include fuel stop</label></div><p className="note">You can also say “skip fuel” or “limit detour to three minutes”. Completed calls and calendar actions are retained.</p></section>
-        <section aria-label="Replanning events"><h2>WORLD CHANGE → REPLANNING → NEW PLAN</h2>{replans.length?<ol>{replans.map(event => <li key={event.id}><span>REPLAN</span>{event.message}</li>)}</ol>:<p className="note">The mission is following the current plan.</p>}</section>
+        <section aria-label="Replanning events"><h2>WHY IT REPLANNED</h2>{replans.length?<ol>{replans.map(event => <li key={event.id}><span>REPLAN · {event.step}</span><div><strong>{event.explanation?.trigger || event.message}</strong>{event.explanation && <><p>Affected: {event.explanation.affected_tasks.map(id=>mission.tasks.find(t=>t.id===id)?.description || id).join(', ')}</p><p>Selected: {event.explanation.selected_alternative || 'Pending verification'}</p><p>{event.explanation.constraint_impact}</p></>}</div></li>)}</ol>:<p className="note">{mission.status==='ESCALATED'?'The mission needs attention. Inspect failed or blocked tasks; committed work is saved.':'The mission is following the current plan.'}</p>}</section>
         <details className="world-controls"><summary>Change the simulated external world</summary><div className="controls"><button disabled={busy} onClick={() => change('world',{parking_full:true})}>Garage becomes full</button><button disabled={busy} onClick={() => change('world',{contact_response:'rejected'})}>Ananya declines 4:30</button><button disabled={busy} onClick={() => change('world',{contact_response:'no_answer'})}>Ananya does not answer</button><button disabled={busy} onClick={() => change('world',{fuel_detour_minutes:8})}>Fuel adds 8 minutes</button><button disabled={busy} onClick={() => change('world',{base_travel_minutes:28})}>Traffic slows route</button></div><p className="note">Use these during execution. The demo clock advances one persisted transition each second. Changing completed routing can reopen those tasks without repeating contact or calendar effects.</p></details>
-        <details><summary>Mission action log</summary><ol>{mission.events.map(event => <li key={event.id}><span>{event.status}</span>{event.message}</li>)}</ol></details>
+        <details className="mission-record"><summary>Mission Record · {mission.events.length} persisted events</summary><p>Original request: {mission.transcript}</p><p>Mission {mission.id} · revision {mission.revision} · {mission.status}</p><p>Route: {mission.route.parking?.name || 'No parking'} / {mission.route.fuel?.name || 'No fuel'} · ETA {time(mission.eta.arrival)}</p><a className="record-download" href={`/api/missions/${mission.id}/record`} download>Download mission evidence</a><ol>{mission.events.map(event => <li key={event.id}><span>#{event.id} · {event.status}</span><div>{event.message}<small>{event.timestamp}</small></div></li>)}</ol></details>
+        <details><summary>Replay protection · inspect preserved state</summary><div className="controls"><button disabled={busy || playing || !replayRequest} onClick={()=>checkGuard('duplicate')}>Submit same request twice</button><button disabled={busy || playing || mission.revision===0} onClick={()=>checkGuard('revision')}>Send stale revision</button><button disabled={busy || playing || !staleConfirmation.current} onClick={()=>checkGuard('confirmation')}>Send stale confirmation</button><button disabled={busy} onClick={listen}>Browser voice change · local fallback</button>{mission.world.fuel_service_failed && <button disabled={busy} onClick={()=>change('world',{fuel_service_failed:false})}>Restore synthetic fuel service</button>}</div><p className="note">Pause progression before checking replay guards. For a stale approval, run the counter-offer preset, then change the detour requirement; this retires the displayed confirmation. The control sends that actual old ID. Rejected commands leave saved state unchanged.</p><p role="status">{guardResult}</p></details>
         {['COMPLETED','ESCALATED','CANCELLED'].includes(mission.status) && <p className="outcome" aria-label="Completion outcome">{mission.spoken_response}</p>}
       </>}
       <details><summary>Personal · Work · Delivery examples</summary><p className="note">These contexts require tools outside the frozen demo contract. Each safely escalates without external effects.</p><div className="controls">{[ ['Personal',"Pick up Mom's medicine. Find a pharmacy on my route, confirm stock, and tell her my ETA."],['Work',"Tell the customer I'm 20 minutes away, check whether the replacement part is available, and replan if it isn't."],['Delivery',"The receiver isn't answering. Find out whether they can still take the shipment and update me if the slot changes."] ].map(([label,text])=><button key={label} disabled={busy || recording} onClick={()=>start(text)}>{label} example</button>)}</div></details>

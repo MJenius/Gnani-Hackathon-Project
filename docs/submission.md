@@ -23,6 +23,8 @@ Real English and Kannada synthetic-audio signature runs completed through Prisma
 
 ## Demo flow
 
+Use the [60-second script](demo-script.md), [architecture diagram](architecture.md) and [technical design](technical-design.md) for the final demonstration and engineering review.
+
 Say: “I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.”
 
 DriveOS creates one mission, negotiates through synthetic CallPilot, updates the synthetic calendar after acceptance, discovers parking, observes the garage becoming unavailable, selects East lot, keeps fuel within the five-minute shared detour constraint and recalculates ETA. All revisions retain the mission ID. Timbre provides start and completion feedback in real speech mode.
@@ -35,11 +37,9 @@ CallPilot calls/contact responses, calendar contents and changes, parking availa
 
 ## Evaluation evidence
 
-Measured on 2026-10-03: 53 unit tests pass; production frontend builds; 21/21 offline v2 cases have expected outcomes, valid schema, correct dependencies, preserved intent and confirmation compliance. Supported requests complete in 11/11 evaluated runs. The changing-world and bounded no-answer cases each pass 1/1. Duplicate notification effects and unsafe effects are zero. Median local mission latency is 119.37 ms, excluding speech/network/browser pacing.
+The 2026-10-04 refinement passes 60 tests, 27/27 offline mission outcomes, 13/13 supported completion runs and 13/13 chaos checks. The automatic API restart check restores exact committed state across two processes and completes the same mission without repeating contact/calendar effects. Production build and secret scan pass. See [submission evidence](submission-evidence.md) for denominators, latency scope, reproduction commands and manual gates; [machine-readable evidence](evaluation-evidence.json) keeps offline and provider measurements separate.
 
-Named English, Kannada and Hinglish fixture runs pass 4/4, 1/1 and 1/1 respectively. These are offline fixture measurements, not speech accuracy percentages. English/Kannada real synthetic-audio v2 loops previously completed with five added minutes and start/final Timbre audio. Their measured loop latencies were 15,918 and 15,990 ms, including a ten-second provider cooldown. The current changing-world browser run completed with East lot, fuel and 4:30 ETA. Secret scan found zero findings in source/index/history/bundles and no tracked audio/database files.
-
-Human microphone completion/playback remains **unverified**. An earlier real human transcript was observed, but that mission escalated; its equivalent phrase is now supported offline. The local allowance currently has one request remaining, below the three needed for a fresh voice mission. Do not increase that cap without checking provider credits. Real persistent-v2 Hinglish speech, listening quality and noisy-car robustness also remain unverified.
+Real English/Kannada Prisma/Timbre synthetic-audio v2 results are historical observations from 2026-10-03. No new provider requests were spent in this refinement. Human microphone completion/listening and persistent-v2 Hinglish speech remain unverified. One request remains in the local allowance, below the three needed for a new full voice run; provider credits have not been reverified.
 
 ## Safety model
 

@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
+from copy import deepcopy
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from app.api.main import app
@@ -189,5 +190,68 @@ class MissionV2Tests(unittest.TestCase):
     def test_frozen_contract_unchanged(self):
         from pathlib import Path
         self.assertEqual(MissionPlan.model_json_schema(),json.loads(Path('docs/evon-plan-v1.schema.json').read_text()))
+
+    def test_judge_presets_preserve_committed_state(self):
+        for demo,expected in [('counter-offer','AWAITING_CONFIRMATION'),('no-answer','ESCALATED'),
+                              ('fuel-budget','COMPLETED'),('requirement-change','COMPLETED'),
+                              ('service-failure','ESCALATED'),('late-arrival','ESCALATED')]:
+            with self.subTest(demo=demo):
+                initial=self.start(request_key=demo,demo=demo);mission=self.finish(initial)
+                self.assertEqual(mission['id'],initial['id']);self.assertEqual(mission['status'],expected)
+                self.assertLessEqual(len(self.effects(mission,'contact.notify_delay')),1)
+                if demo not in {'counter-offer','no-answer'}:
+                    self.assertEqual(len(self.effects(mission,'calendar.reschedule')),1)
+                    self.assertEqual(mission['world']['calendar']['time'],'16:30')
+                if demo in {'fuel-budget','requirement-change','service-failure'}:
+                    self.assertIsNone(mission['route']['fuel']);self.assertEqual(self.effects(mission,'fuel.select'),[])
+
+    def test_service_failure_recovery_preserves_completed_history(self):
+        mission=self.finish(self.start(demo='service-failure'))
+        committed=[task for task in mission['tasks'] if task['tool'] in {'contact.negotiate','calendar.reschedule','parking.select'}]
+        self.assertEqual(mission['tasks'][-1]['status'],'FAILED')
+        mission=self.finish(self.act(mission,'world',changes={'fuel_service_failed':False}))
+        self.assertEqual(mission['status'],'COMPLETED')
+        self.assertEqual(committed,mission['tasks'][:3])
+        for action in ['contact.notify_delay','calendar.reschedule','parking.select','fuel.select']:
+            self.assertEqual(len(self.effects(mission,action)),1)
+        removed=self.finish(self.start(request_key='remove-failed-fuel',demo='service-failure'))
+        removed=self.finish(self.act(removed,'requirements',changes={'include_fuel':False}))
+        self.assertEqual(removed['status'],'COMPLETED')
+        self.assertEqual(removed['tasks'][-1]['status'],'SKIPPED')
+        self.assertEqual(self.effects(removed,'fuel.select'),[])
+
+    def test_replan_explanation_is_persisted_and_resolved(self):
+        mission=self.finish(self.start(demo='parking-change'))
+        replan=next(event for event in mission['events'] if event['status']=='REPLANNING')
+        explanation=replan['explanation']
+        self.assertEqual(explanation['affected_tasks'],[next(task['id'] for task in mission['tasks'] if task['tool']=='parking.select')])
+        self.assertEqual(explanation['selected_alternative'],'East lot')
+        self.assertIn('3 min',explanation['constraint_impact'])
+        self.assertEqual(persistent.get(mission['id'])['events'],mission['events'])
+
+    def test_mission_record_exports_exact_persisted_state(self):
+        mission=self.finish(self.start(demo='parking-change'))
+        response=self.client.get('/missions/'+mission['id']+'/record')
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.json(),mission)
+        self.assertIn('attachment;',response.headers['content-disposition'])
+        self.assertEqual(self.client.get('/missions/missing/record').status_code,404)
+
+    def test_late_route_escalates_without_repeating_calendar(self):
+        mission=self.finish(self.start(demo='late-arrival'))
+        self.assertEqual(mission['status'],'ESCALATED')
+        self.assertGreater(mission['eta']['arrival'],mission['world']['calendar']['time'])
+        self.assertEqual(len(self.effects(mission,'calendar.reschedule')),1)
+        self.assertEqual(mission['events'][-2]['explanation']['selected_alternative'],'Escalate for another agreement')
+
+    def test_malformed_plan_and_unsupported_goal_preserve_existing_mission(self):
+        committed=self.finish(self.start())
+        plan=deepcopy(committed['plan']);plan['tasks'][0]['depends_on']=['missing']
+        response=self.client.post('/missions/start',json={'transcript':GOAL,'authorized':True,'request_key':'malformed','plan':plan})
+        self.assertEqual(response.status_code,422)
+        unsupported=self.finish(self.start(request_key='unsupported',transcript="Pick up Mom's medicine. Find a pharmacy on my route, confirm stock, and tell her my ETA."))
+        self.assertEqual(unsupported['status'],'ESCALATED');self.assertEqual(unsupported['tasks'],[])
+        self.assertEqual(persistent.get(committed['id']),committed)
+        self.assertEqual(len(self.effects(committed,'calendar.reschedule')),1)
 
 if __name__=='__main__': unittest.main()

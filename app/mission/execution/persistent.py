@@ -48,6 +48,16 @@ def get(mission_id):
 def event(mission,status,message,task_id=None):
     mission['events'].append({'id':len(mission['events'])+1,'status':status,'message':message,
         'task_id':task_id,'timestamp':now(),'step':mission['step']})
+    if status=='REPLANNING':
+        mission['events'][-1]['explanation']={'trigger':message,
+            'affected_tasks':[task_id] if task_id else [t['id'] for t in mission['tasks'] if t['tool'] in {'parking.select','fuel.select'}], 'selected_alternative':None,
+            'constraint_impact':'Awaiting a verified alternative'}
+
+def explain_result(mission,task,selected,impact):
+    for item in mission['events']:
+        explanation=item.get('explanation')
+        if explanation and explanation['selected_alternative'] is None and task['id'] in explanation['affected_tasks']:
+            explanation.update(selected_alternative=selected,constraint_impact=impact)
 
 def transition(mission,task,status,message,output=None):
     if status not in STATES: raise ValueError('Invalid task state')
@@ -100,7 +110,7 @@ def summary(mission):
         task=task_for(mission,kind+'.select')
         if task:
             item=mission['route'][kind]
-            text.append(item['name']+' selected.' if item else kind.title()+' omitted.')
+            text.append(item['name']+' selected.' if item else kind.title()+(' service failed; retry needs recovery.' if task['status']=='FAILED' else ' omitted.'))
     text.append('Simulated arrival '+display_time(mission['eta']['arrival'])+'; added route time '+str(mission['eta']['added_minutes'])+' minutes.')
     if calendar and calendar['status']=='COMPLETED' and mission['eta']['arrival']>world['calendar']['time']:
         text.append('Arrival is later than the agreed meeting time; another agreement is needed.')
@@ -130,6 +140,8 @@ def update_view(mission):
         mission['spoken_response']=summary(mission)
         if not mission['terminal_announced']:
             if late: event(mission,'REPLANNING','Updated ETA misses the agreed time; further negotiation requires review')
+            if late:
+                mission['events'][-1]['explanation'].update(selected_alternative='Escalate for another agreement',constraint_impact='Arrival '+mission['eta']['arrival']+' exceeds meeting '+mission['world']['calendar']['time'])
             event(mission,mission['status'],mission['spoken_response']);mission['terminal_announced']=True
     else:
         mission['status']='ESCALATED';mission['current_action']='No executable task; review dependencies'
@@ -146,7 +158,9 @@ def start(request):
         if request.get('plan') is not None: plan=MissionPlan.model_validate(request['plan'])
         else: plan=mission_planner(request.get('mode','simulation')).plan_mission(planning_input(request['transcript']))
         for task in plan.tasks: validate(task.action,request['authorized'])
-        stamp=now();scenario=request.get('scenario') or {}
+        stamp=now();scenario=dict(request.get('scenario') or {})
+        if request.get('demo') in {'counter-offer','no-answer'}:
+            scenario['contact_response']='rejected' if request['demo']=='counter-offer' else 'no_answer'
         mission={'id':str(uuid4()),'engine_version':2,'contract_version':'1','goal':request['transcript'],
                  'transcript':request['transcript'],'plan':plan.model_dump(),'planner':('Evon' if request.get('mode')=='live' else 'MockEvon') if request.get('plan') is None else 'provided-plan',
                  'mode':request.get('mode','simulation'),'external_tools':'simulated','authorized':request['authorized'],
@@ -180,9 +194,10 @@ def external_change(mission,patch):
     if 'counter_offer' in patch: details.append('Ananya changed her counter-offer')
     if 'fuel_detour_minutes' in patch: details.append('Fuel detour is '+str(patch['fuel_detour_minutes'])+' minutes')
     if 'base_travel_minutes' in patch: details.append('Base route time is '+str(patch['base_travel_minutes'])+' minutes')
+    if 'fuel_service_failed' in patch: details.append('Synthetic fuel service '+('failed' if patch['fuel_service_failed'] else 'recovered'))
     event(mission,'WORLD_CHANGED','; '.join(details))
     parking_changed=any(key in patch for key in ['parking_full','alternative_parking_full'])
-    fuel_changed='fuel_detour_minutes' in patch
+    fuel_changed=any(key in patch for key in ['fuel_detour_minutes','fuel_service_failed'])
     # In-progress candidates are checked in the next transition, making failure visible.
     parking=task_for(mission,'parking.select');fuel=task_for(mission,'fuel.select')
     if parking_changed and parking and parking['status'] in TERMINAL:
@@ -190,7 +205,7 @@ def external_change(mission,patch):
         reopen(mission,parking,'Parking changed after selection; inspect alternatives')
         if fuel: reopen(mission,fuel,'Parking changed; recalculate remaining fuel budget')
     elif fuel_changed and fuel and fuel['status'] in TERMINAL:
-        mission['route']['fuel']=None;reopen(mission,fuel,'Fuel detour changed; inspect alternatives')
+        mission['route']['fuel']=None;reopen(mission,fuel,'Fuel service recovered; retry only fuel' if patch.get('fuel_service_failed') is False else 'Fuel conditions changed; inspect alternatives')
     if any(key in patch for key in ['contact_response','counter_offer']):
         contact=task_for(mission,'contact.negotiate');calendar=task_for(mission,'calendar.reschedule')
         if contact and contact['status'] in TERMINAL and contact['attempts']<2 and calendar and calendar['status']!='COMPLETED':
@@ -199,7 +214,10 @@ def external_change(mission,patch):
             if calendar: reopen(mission,calendar,'Wait for renewed negotiation')
     if 'base_travel_minutes' in patch:
         event(mission,'REPLANNING','Maps changed; recalculate the route ETA')
+        maps_explanation=mission['events'][-1]['explanation']
     refresh_route(mission,'Route conditions changed')
+    if 'base_travel_minutes' in patch:
+        maps_explanation.update(selected_alternative='Recalculate ETA for the current route',constraint_impact='Simulated arrival '+mission['eta']['arrival']+'; meeting '+mission['world']['calendar']['time'])
     mission['terminal_announced']=False
 
 
@@ -214,6 +232,16 @@ def advance(db,mission):
         external_change(mission,{'parking_full':True});mission['demo_event_fired']=True
         event(mission,'DEMO_EVENT','Office garage became full after the initial candidate was selected')
     action=task['tool'];world=mission['world']
+    calendar=task_for(mission,'calendar.reschedule')
+    if not mission['demo_event_fired'] and calendar and calendar['status']=='COMPLETED':
+        conditions={'fuel-budget':{'fuel_detour_minutes':8},'service-failure':{'fuel_service_failed':True},
+                    'late-arrival':{'base_travel_minutes':28}}
+        if mission['demo'] in conditions:
+            external_change(mission,conditions[mission['demo']]);mission['demo_event_fired']=True
+        elif mission['demo']=='requirement-change':
+            mission['requirements']['include_fuel']=False;mission['requirements_version']+=1
+            event(mission,'REPLANNING','Demo user removed fuel mid-mission',task_for(mission,'fuel.select')['id'])
+            mission['demo_event_fired']=True
     validate(action,mission['authorized'])
     if action=='contact.negotiate':
         if task['status']=='READY':
@@ -238,10 +266,12 @@ def advance(db,mission):
             if output['response']=='no_answer':
                 world['contact']['call_state']='NO_ANSWER'
                 transition(mission,task,'REPLANNING','No answer; retry the same notification request once',output)
+                explain_result(mission,task,'One bounded retry' if task['attempts']<2 else 'User intervention required',str(task['attempts'])+' of 2 attempts used; calendar unchanged')
                 transition(mission,task,'READY' if task['attempts']<2 else 'BLOCKED','Retry queued' if task['attempts']<2 else 'No answer after two attempts')
             elif output['response']=='rejected':
                 world['contact']['call_state']='DECLINED'
                 event(mission,'REPLANNING','Ananya declined 4:30'+('; offered '+output['counter_offer'] if output['counter_offer'] else '; no alternative provided'),task['id'])
+                explain_result(mission,task,'Counter-offer '+output['counter_offer'] if output['counter_offer'] else 'User intervention required','Calendar remains unchanged until exact approval')
                 transition(mission,task,'COMPLETED' if output['counter_offer'] else 'BLOCKED','Counter-offer requires user approval' if output['counter_offer'] else 'Meeting time rejected',output)
             else:
                 world['contact']['call_state']='ACCEPTED';output['accepted_time']='16:30'
@@ -260,7 +290,11 @@ def advance(db,mission):
     else:
         kind=action.split('.')[0]
         if kind=='fuel' and not mission['requirements']['include_fuel']:
-            mission['route'][kind]=None;transition(mission,task,'SKIPPED','User removed the fuel requirement');refresh_route(mission,'Fuel removed');return
+            mission['route'][kind]=None;transition(mission,task,'SKIPPED','User removed the fuel requirement');refresh_route(mission,'Fuel removed')
+            explain_result(mission,task,'Fuel omitted','User requirement preserved; completed meeting work retained');return
+        if kind=='fuel' and world.get('fuel_service_failed'):
+            transition(mission,task,'FAILED','Synthetic fuel service unavailable. Earlier committed work is retained; restore the service to retry.')
+            return
         used=mission['route']['parking']['detour_minutes'] if kind=='fuel' and mission['route']['parking'] else 0
         limit=min(task['inputs']['max_detour_minutes'],mission['requirements']['max_detour_minutes'])-used
         if task['status']=='READY':
@@ -268,6 +302,7 @@ def advance(db,mission):
             if not choices:
                 mission['route'][kind]=None
                 transition(mission,task,'SKIPPED' if kind=='fuel' else 'BLOCKED','No '+kind+' candidate within the shared detour limit')
+                explain_result(mission,task,'Omitted' if kind=='fuel' else 'User intervention required',f'{limit} minutes remaining; no feasible {kind} candidate')
             else:
                 task['candidate']=choices[0]
                 transition(mission,task,'EXECUTING','Checking '+choices[0]['name']+' before choosing the route')
@@ -282,6 +317,7 @@ def advance(db,mission):
                 mission['route'][kind]=candidate
                 effect(db,mission,task,kind+':'+str(task['generation'])+':'+candidate['id'],action,candidate)
                 transition(mission,task,'COMPLETED',candidate['name']+' verified and selected',{**candidate,'simulated':True})
+                explain_result(mission,task,candidate['name'],f"+{candidate['detour_minutes']} min; shared route limit {mission['requirements']['max_detour_minutes']} min")
         refresh_route(mission,'Route recalculated')
 
 
@@ -303,7 +339,9 @@ def command(mission_id,operation,request):
             notes=[]
             if 'max_detour_minutes' in changes: notes.append('User limited total route detour to '+str(changes['max_detour_minutes'])+' minutes')
             if 'include_fuel' in changes: notes.append('User '+('included' if changes['include_fuel'] else 'removed')+' the fuel stop')
-            if notes: event(mission,'REPLANNING','; '.join(notes))
+            if notes:
+                event(mission,'REPLANNING','; '.join(notes))
+                mission['events'][-1]['explanation']['affected_tasks']=[t['id'] for t in mission['tasks'] if t['tool']=='fuel.select' or ('max_detour_minutes' in changes and t['tool']=='parking.select')]
             if 'max_detour_minutes' in changes:
                 mission['route']={'parking':None,'fuel':None}
                 reopen(mission,task_for(mission,'parking.select'),'Recheck parking under the new detour limit')

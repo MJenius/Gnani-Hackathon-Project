@@ -8,7 +8,7 @@ def initial(scenario):
                        {'id':'p2','name':'East lot','available':True,'detour_minutes':3}],
             'fuel':[{'id':'f1','name':'Route fuel stop','available':True,'detour_minutes':2},
                     {'id':'f2','name':'Far fuel stop','available':True,'detour_minutes':7}],
-            'maps':{'departure':'16:00','base_minutes':25},'version':0}
+            'maps':{'departure':'16:00','base_minutes':25},'fuel_service_failed':False,'version':0}
 
 def change(world,patch):
     world=deepcopy(world)
@@ -19,6 +19,7 @@ def change(world,patch):
         elif key=='counter_offer': world['contact']['counter_offer']=value
         elif key=='fuel_detour_minutes': world['fuel'][0]['detour_minutes']=value
         elif key=='base_travel_minutes': world['maps']['base_minutes']=value
+        elif key=='fuel_service_failed': world['fuel_service_failed']=value
         else: raise ValueError('Unknown synthetic condition')
     world['version']+=1
     return world

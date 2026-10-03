@@ -1,6 +1,7 @@
 import base64
 from typing import Literal
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ConfigDict, model_validator
 from app.agent.planner.contract import MissionPlan
 from app.mission.execution import persistent
@@ -19,7 +20,7 @@ class StartMission(StrictRequest):
     transcript: str = Field(min_length=1,max_length=2000)
     request_key: str = Field(min_length=1,max_length=100)
     authorized: bool = False
-    demo: Literal['none','parking-change'] = 'none'
+    demo: Literal['none','parking-change','counter-offer','no-answer','fuel-budget','requirement-change','service-failure','late-arrival'] = 'none'
     plan: MissionPlan | None = None
 
 class CommandRequest(StrictRequest):
@@ -33,6 +34,7 @@ class WorldChanges(StrictRequest):
     counter_offer: Literal['16:45'] | None = '16:45'
     fuel_detour_minutes: int | None = Field(default=None,ge=0,le=30)
     base_travel_minutes: int | None = Field(default=None,ge=1,le=120)
+    fuel_service_failed: bool | None = None
 
     @model_validator(mode='after')
     def supplied(self):
@@ -76,6 +78,11 @@ def start_mission(request: StartMission):
 @app.get('/missions/{mission_id}')
 def read_mission(mission_id: str):
     return mission_operation(persistent.get,mission_id)
+
+@app.get('/missions/{mission_id}/record')
+def mission_record(mission_id: str):
+    mission=mission_operation(persistent.get,mission_id)
+    return JSONResponse(mission,headers={'Content-Disposition':f'attachment; filename="driveos-{mission["id"]}.json"'})
 
 @app.post('/missions/{mission_id}/advance')
 def advance_mission(mission_id: str,request: CommandRequest):

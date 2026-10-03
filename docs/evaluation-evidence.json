@@ -7,8 +7,8 @@
   },
   "multilingual_fixture_validity": {
     "english": {
-      "passed": 4,
-      "tested": 4
+      "passed": 10,
+      "tested": 10
     },
     "kannada": {
       "passed": 1,
@@ -19,7 +19,14 @@
       "tested": 1
     }
   },
-  "latency_scope": "local text \u2192 persisted mission; excludes STT/TTS and browser pacing",
+  "evaluation_kind": "offline_engine",
+  "denominators": {
+    "expected_outcomes": 27,
+    "supported_completion": 13,
+    "replanning": 1,
+    "bounded_no_answer": 2
+  },
+  "latency_scope": "local text → persisted mission including replay checks; excludes STT/TTS and browser pacing",
   "metrics": {
     "expected_outcome": 1.0,
     "schema_valid": 1.0,
@@ -32,8 +39,9 @@
     "no_answer_handling": true,
     "duplicate_execution_rate": 0.0,
     "unsafe_action_rate": 0.0,
-    "median_latency_ms": 119.37,
-    "user_interventions": 10
+    "median_latency_ms": 136.05,
+    "average_latency_ms": 101.94,
+    "user_interventions": 14
   },
   "cases": [
     {
@@ -52,7 +60,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 146.07,
+      "latency_ms": 143.68,
       "user_interventions": 0
     },
     {
@@ -71,7 +79,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 121.31,
+      "latency_ms": 121.01,
       "user_interventions": 0
     },
     {
@@ -90,7 +98,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 121.4,
+      "latency_ms": 141.38,
       "user_interventions": 0
     },
     {
@@ -109,7 +117,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 122.72,
+      "latency_ms": 150.44,
       "user_interventions": 0
     },
     {
@@ -128,7 +136,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 122.85,
+      "latency_ms": 140.89,
       "user_interventions": 0
     },
     {
@@ -147,7 +155,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 123.43,
+      "latency_ms": 137.95,
       "user_interventions": 0
     },
     {
@@ -166,7 +174,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 124.35,
+      "latency_ms": 140.06,
       "user_interventions": 0
     },
     {
@@ -185,7 +193,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 117.46,
+      "latency_ms": 143.82,
       "user_interventions": 0
     },
     {
@@ -204,7 +212,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 119.88,
+      "latency_ms": 146.21,
       "user_interventions": 0
     },
     {
@@ -223,7 +231,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 11.11,
+      "latency_ms": 11.44,
       "user_interventions": 1
     },
     {
@@ -242,7 +250,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 10.33,
+      "latency_ms": 11.2,
       "user_interventions": 1
     },
     {
@@ -261,7 +269,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 10.21,
+      "latency_ms": 10.93,
       "user_interventions": 1
     },
     {
@@ -280,7 +288,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 13.24,
+      "latency_ms": 13.78,
       "user_interventions": 1
     },
     {
@@ -299,7 +307,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 11.27,
+      "latency_ms": 14.09,
       "user_interventions": 1
     },
     {
@@ -318,7 +326,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 11.61,
+      "latency_ms": 13.49,
       "user_interventions": 1
     },
     {
@@ -337,7 +345,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 117.83,
+      "latency_ms": 143.02,
       "user_interventions": 0
     },
     {
@@ -356,7 +364,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 11.78,
+      "latency_ms": 13.74,
       "user_interventions": 1
     },
     {
@@ -375,7 +383,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": null,
-      "latency_ms": 10.01,
+      "latency_ms": 14.39,
       "user_interventions": 1
     },
     {
@@ -394,8 +402,122 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 144.4,
+      "latency_ms": 170.86,
       "user_interventions": 0
+    },
+    {
+      "case": "english",
+      "scenario": {},
+      "demo": "counter-offer",
+      "status": "AWAITING_CONFIRMATION",
+      "expected_outcome": true,
+      "mission_completed": false,
+      "schema_valid": true,
+      "dependencies_correct": true,
+      "intent_preserved": true,
+      "replanning_success": null,
+      "duplicate_effects": 0,
+      "confirmation_compliant": true,
+      "unsafe_actions": 0,
+      "no_answer_bounded": null,
+      "ground_truth_verified": true,
+      "latency_ms": 148.22,
+      "user_interventions": 1
+    },
+    {
+      "case": "english",
+      "scenario": {},
+      "demo": "no-answer",
+      "status": "ESCALATED",
+      "expected_outcome": true,
+      "mission_completed": false,
+      "schema_valid": true,
+      "dependencies_correct": true,
+      "intent_preserved": true,
+      "replanning_success": null,
+      "duplicate_effects": 0,
+      "confirmation_compliant": true,
+      "unsafe_actions": 0,
+      "no_answer_bounded": true,
+      "ground_truth_verified": true,
+      "latency_ms": 138.79,
+      "user_interventions": 1
+    },
+    {
+      "case": "english",
+      "scenario": {},
+      "demo": "fuel-budget",
+      "status": "COMPLETED",
+      "expected_outcome": true,
+      "mission_completed": true,
+      "schema_valid": true,
+      "dependencies_correct": true,
+      "intent_preserved": true,
+      "replanning_success": null,
+      "duplicate_effects": 0,
+      "confirmation_compliant": true,
+      "unsafe_actions": 0,
+      "no_answer_bounded": null,
+      "ground_truth_verified": true,
+      "latency_ms": 128.04,
+      "user_interventions": 0
+    },
+    {
+      "case": "english",
+      "scenario": {},
+      "demo": "requirement-change",
+      "status": "COMPLETED",
+      "expected_outcome": true,
+      "mission_completed": true,
+      "schema_valid": true,
+      "dependencies_correct": true,
+      "intent_preserved": true,
+      "replanning_success": null,
+      "duplicate_effects": 0,
+      "confirmation_compliant": true,
+      "unsafe_actions": 0,
+      "no_answer_bounded": null,
+      "ground_truth_verified": true,
+      "latency_ms": 127.08,
+      "user_interventions": 0
+    },
+    {
+      "case": "english",
+      "scenario": {},
+      "demo": "service-failure",
+      "status": "ESCALATED",
+      "expected_outcome": true,
+      "mission_completed": false,
+      "schema_valid": true,
+      "dependencies_correct": true,
+      "intent_preserved": true,
+      "replanning_success": null,
+      "duplicate_effects": 0,
+      "confirmation_compliant": true,
+      "unsafe_actions": 0,
+      "no_answer_bounded": null,
+      "ground_truth_verified": true,
+      "latency_ms": 122.54,
+      "user_interventions": 1
+    },
+    {
+      "case": "english",
+      "scenario": {},
+      "demo": "late-arrival",
+      "status": "ESCALATED",
+      "expected_outcome": true,
+      "mission_completed": false,
+      "schema_valid": true,
+      "dependencies_correct": true,
+      "intent_preserved": true,
+      "replanning_success": null,
+      "duplicate_effects": 0,
+      "confirmation_compliant": true,
+      "unsafe_actions": 0,
+      "no_answer_bounded": null,
+      "ground_truth_verified": true,
+      "latency_ms": 136.35,
+      "user_interventions": 1
     },
     {
       "case": "english",
@@ -415,7 +537,7 @@
       "unsafe_actions": 0,
       "no_answer_bounded": true,
       "ground_truth_verified": true,
-      "latency_ms": 119.37,
+      "latency_ms": 133.0,
       "user_interventions": 1
     },
     {
@@ -436,27 +558,53 @@
       "unsafe_actions": 0,
       "no_answer_bounded": null,
       "ground_truth_verified": true,
-      "latency_ms": 122.77,
+      "latency_ms": 136.05,
       "user_interventions": 1
     }
   ],
-  "verified_on": "2026-10-03",
+  "verified_on": "2026-10-04",
+  "timezone": "Asia/Kolkata",
   "tests": {
-    "passed": 53,
+    "passed": 60,
     "frontend_build": "passed",
     "secret_scan_findings": 0
   },
-  "browser_demo": {
-    "status": "COMPLETED",
-    "parking": "East lot",
-    "fuel": "Route fuel stop",
-    "arrival": "16:30",
-    "added_minutes": 5,
-    "replanning_observed": true,
-    "same_mission_id_observed": true,
-    "mission_id": "9b087eeb-3c63-4de8-a244-24cf77373f9c",
-    "initial_revision": 0,
-    "final_revision": 12
+  "chaos": {
+    "kind": "offline_chaos",
+    "checks_passed": 13,
+    "checks_tested": 13,
+    "checks": [
+      "duplicate request / stale revision",
+      "stale confirmation",
+      "parking disappearance",
+      "no answer / bounded retry",
+      "rejected time",
+      "failed transition rollback",
+      "service failure / recovery",
+      "changed requirement",
+      "malformed planner / unsupported goal",
+      "late arrival escalation",
+      "repeated retry / mutation",
+      "persisted explanation",
+      "API process restart"
+    ],
+    "providers_called": false
+  },
+  "restart": {
+    "status": "passed",
+    "api_processes": 2,
+    "exact_state_restored": true,
+    "same_mission_id": true,
+    "resumed_status": "COMPLETED",
+    "effect_counts": {
+      "calendar.reschedule": 1,
+      "contact.call": 1,
+      "contact.delay_queued": 1,
+      "contact.notify_delay": 1,
+      "fuel.select": 1,
+      "parking.select": 1
+    },
+    "providers_called": false
   },
   "real_speech_evidence": {
     "english": {
@@ -483,5 +631,58 @@
       "status": "not_verified_for_persistent_v2",
       "offline_fixture_valid": true
     }
+  },
+  "real_speech_evidence_date": "2026-10-03",
+  "new_provider_requests": 0,
+  "voice_gate": {
+    "remaining_local_requests": 1,
+    "minimum_new_voice_mission_requests": 3,
+    "provider_credits_reverified": false
+  },
+  "evon": {
+    "hosted_inference": "unverified",
+    "verified_endpoint_available": false
+  },
+  "browser_demo": {
+    "verified_on": "2026-10-04",
+    "status": "COMPLETED",
+    "mission_id": "32f7eb6c-2ae2-474f-a8b8-be875fd7d50b",
+    "initial_revision": 0,
+    "final_revision": 12,
+    "parking": "East lot",
+    "fuel": "Route fuel stop",
+    "arrival": "16:30",
+    "added_minutes": 5,
+    "persisted_event_count": 24,
+    "replanning_observed": true,
+    "same_mission_id_observed": true,
+    "duplicate_start_same_state": true,
+    "stale_revision_rejected_same_state": true,
+    "actual_retired_confirmation_rejected_same_state": true,
+    "service_failure_recovery_same_mission": true,
+    "effect_counts": {
+      "calendar.reschedule": 1,
+      "contact.call": 1,
+      "contact.delay_queued": 1,
+      "contact.notify_delay": 1,
+      "fuel.select": 1,
+      "parking.select": 1
+    },
+    "recovery_effect_counts": {
+      "calendar.reschedule": 1,
+      "contact.call": 1,
+      "contact.delay_queued": 1,
+      "contact.notify_delay": 1,
+      "fuel.select": 1,
+      "parking.select": 1
+    },
+    "mission_record_export": "exact saved JSON verified through frontend proxy",
+    "languages_displayed": [
+      "English",
+      "Kannada",
+      "Hinglish"
+    ],
+    "speech_path": "text rehearsal / browser speech fallback",
+    "providers_called": false
   }
 }

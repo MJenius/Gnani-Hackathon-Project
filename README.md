@@ -1,18 +1,79 @@
-# DriveOS
+# DRIVEOS
 
-**DriveOS is a voice-first mission execution layer for people whose hands and attention are occupied.**
+**You drive. It handles everything around the drive.**
 
-Prisma hears the driver. DriveOS converts a supported request into an accountable mission. Mission Engine v2 executes, observes changes and replans under the same mission ID. Timbre speaks the result. The console shows task progress, call state, world change, revised plan, ETA and completion.
+DriveOS is a voice-first mission execution layer for people whose hands and attention are occupied. One compound goal becomes a persistent, accountable mission that executes bounded actions and recovers when the world changes.
 
-## Final runtime
+![DriveOS mission console: same mission, East lot, shared detour and replan evidence](docs/mission-console.png)
 
-Microphone -> mono WAV -> real Prisma -> normalized transcript -> DriveOS Mission Interpreter -> deterministic policy -> persistent Mission Engine v2 -> synthetic services -> replanning -> real Timbre -> browser playback.
+**Prisma hears. DriveOS executes. Timbre speaks.**
 
-The interpreter is the retained **MockEvon** implementation: a deterministic matcher for documented English, Kannada and Hinglish fixtures, with no inference or general reasoning. Equivalent time forms (`four thirty`, `04:30`), punctuation and bounded fillers are accepted. Unknown names, times, constraints, negations and additional actions safely escalate. The frozen schema and allowlist are unchanged.
+## Why voice matters
 
-Evon was investigated as the reasoning model but is **not part of the final runtime path** unless an actual verified deployment becomes available. Evon inference remains unavailable/unverified. No other LLM substitutes for Evon. Optional legacy live endpoints fail closed; the primary demo requires only Prisma and Timbre.
+A delay creates work across several apps: notify someone, agree a new time, check parking, decide whether fuel fits and update the ETA. Voice captures the whole goal in one interaction; DriveOS remembers it while external state changes. The console makes that execution inspectable. Demonstrate this prototype while stationary; production driving support is unverified.
 
-**All contact calls, negotiation, calendar changes, parking, fuel and maps/ETA facts are simulated.** Synthetic CallPilot is a local service, not verified Gnani telephony. No real calls, bookings, purchases or navigation occur.
+## The signature mission
+
+> I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.
+
+Click **Run changing-world demo** for a deterministic text rehearsal. Synthetic CallPilot dials, rings, connects and returns an acceptance. The calendar updates. The engine selects a garage candidate; the world makes it unavailable before verification. The same mission selects East lot, checks fuel against the remaining shared budget and completes with five added minutes and a simulated 4:30 ETA. Completed contact/calendar work stays completed.
+
+Use **Reset demo** to clear the console, or launch any preset into a fresh isolated world. **Judge mode** includes counter-offers, bounded no-answer, over-budget fuel, changed requirements, service failure and late arrival. **Mission Record** shows persisted events and exports JSON. Replay controls demonstrate duplicate request recovery and stale command rejection through the actual API.
+
+The text rehearsal uses labeled browser speech fallback. **Start Gnani voice mission** captures mono WAV, displays the actual Prisma transcript after conservative normalization, executes the same changing-world flow and requests real Timbre start/final audio. It requires configured credentials, sufficient credits and at least three remaining requests. Autoplay may require pressing play.
+
+Open **Voice settings**, select English, Kannada or Hinglish and expand **What to say** for the finite supported fixtures. Names, time and the five-minute limit are preserved; unsupported goals escalate. Completion speech is currently English. The secondary **Personal example** safely escalates pharmacy/stock work outside the frozen tool contract.
+
+[60-second demo script](docs/demo-script.md) · [Measured submission evidence](docs/submission-evidence.md)
+
+## Architecture
+
+**The reasoning component is replaceable; execution, policy, persistence and recovery belong to DriveOS.**
+
+```text
+Microphone → Prisma → Mission Interpreter → frozen schema → DriveOS policy
+                                                              ↓
+                  SQLite persistence ↔ Mission Engine → synthetic services
+                                           ↑                 ↓
+                                     affected-task replan ← world changes
+                                           ↓
+                                 Timbre → spoken outcome
+```
+
+The interpreter proposes; policy validates; the engine owns state and execution. Operational explanations show the trigger, affected tasks, verified alternative and constraint impact. They are system events, not hidden reasoning traces.
+
+[Architecture diagram](docs/architecture.md) · [Technical design](docs/technical-design.md)
+
+## Mission Engine and safety
+
+Stable mission/task identities, dependency histories and incremental SQLite transactions support pause, reload and API restart. Semantic effect identities and bound command fingerprints prevent duplicate synthetic effects under tested replay conditions. Revision checks reject stale commands. A counter-offer needs the exact displayed approval before a calendar change. Failures preserve earlier commits; recovery reopens affected tasks only. No-answer attempts are bounded to two. Late arrival escalates honestly.
+
+These are local synthetic execution guarantees. Real external providers would need their own idempotency and timeout reconciliation. The frozen v1 schema is unchanged.
+
+## Gnani integrations and honest scope
+
+| Component | Implementation / status |
+|---|---|
+| Prisma v2.5 | Real backend transcription via `POST /stt/v3` |
+| Timbre v2.5 | Real backend WAV synthesis via `POST /api/v1/tts/inference` |
+| DriveOS Mission Interpreter | Deterministic finite matcher, implemented by **MockEvon**, no inference |
+| MockEvon | Local interpreter/test planner; not hosted Evon |
+| Hosted Evon | Optional insertion through the frozen contract; endpoint/inference unverified |
+| External tools | Synthetic CallPilot, calendar, parking, fuel and maps |
+
+No live calls, bookings, purchases or navigation occur. No substitute LLM or paid infrastructure was added. Credentials remain backend-only. [Integration contracts](docs/gnani-integration.md)
+
+## Evaluation
+
+Measured refinement results on **2026-10-04**: **60 passing tests**, **27/27 offline mission outcomes**, **13/13 supported completion runs**, and **13/13 chaos checks**, including two real API process launches proving exact-state recovery. Replay evaluation recorded zero duplicate notification effects and zero unsafe tool effects. Production frontend build passes.
+
+Offline latency and denominators are in [submission evidence](docs/submission-evidence.md) and the [machine-readable snapshot](docs/evaluation-evidence.json). Offline engine checks, real provider observations and human microphone validation are kept separate.
+
+Historical real Prisma/Timbre checks completed English and Kannada v2 missions with synthetic input audio. No fresh provider calls were made in this pass: the configured local allowance has one request remaining. Human microphone completion/listening and real Hinglish v2 remain unverified.
+
+## Known limitations
+
+Finite fixture interpretation; synthetic external facts/actions; English summaries; local unauthenticated API; browser-driven demo clock; SQLite planning lock; caches without expiry. No production driving validation, noisy-car measurement, verified hosted Evon or real external-effect reconciliation. Closing the console pauses progression while state remains saved.
 
 ## Run locally
 
@@ -24,7 +85,7 @@ python -m venv .venv
 .\.venv\Scripts\python -m uvicorn app.api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-In a second terminal:
+In another terminal:
 
 ```powershell
 cd app/web
@@ -32,73 +93,18 @@ npm ci
 npm run dev
 ```
 
-Open [DriveOS](http://127.0.0.1:3000). Copy `.env.example` to `.env`, set backend `GNANI_API_KEY` for real speech, and restart the API. Evon configuration is unnecessary. Text simulation works without credentials. SQLite state, transcripts, usage and speech caches stay in ignored `data/`. The browser drives the synthetic clock; closing pauses progression and reopening restores persisted state.
+Open [DriveOS](http://127.0.0.1:3000). Text demos require no credentials. For real speech, copy `.env.example` to `.env`, set backend `GNANI_API_KEY` and restart the API. Check provider credits before changing the local request allowance; it is not a credit balance. SQLite state, transcripts and audio remain in ignored `data/`.
 
-## Hackathon Demo
-
-1. Rehearse with **Run changing-world demo**. The synthetic call rings, connects and accepts 4:30. The garage becomes unavailable during execution. The same mission replans to East lot, retains fuel within five shared detour minutes and recalculates ETA to 4:30. These are backend transitions, not a prerecorded animation. Offline feedback uses browser speech.
-2. For real speech, enable microphone permission on localhost/HTTPS and configure backend credentials. Ensure at least **three remaining requests** in the local allowance. Check provider credits before adjusting the allowance; the local counter is not a credit balance.
-3. Select **Prisma / DriveOS Interpreter / Timbre**, choose English, click **Start Gnani voice mission**, say the exact request below, then **Stop and run voice mission**. Capture stops automatically after 15 seconds.
-4. Watch **VOICE MISSION RESULT** for capture completion, actual Prisma transcript, mission ID/status, progress, replans and Timbre playback events. The timeline and action log show accountable execution. Autoplay restrictions may require pressing play.
-5. Use **Retry same recording** on network failure; it retains request identity. Use **Speak current result with Timbre** if final speech fails. State remains committed and successful audio is cached by exact revision.
-
-> I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.
-
-For Kannada and Hinglish, select the corresponding language and read the exact `kannada` or `hinglish` text in [voice fixtures](app/evaluation/fixtures/voice_missions.json). Supported fixture scope is finite. Real English and Kannada synthetic-audio v2 runs are verified; real Hinglish v2 and human microphone completion/listening remain unverified. Completion summaries are currently spoken in English.
-
-Personal, Work and Delivery buttons visibly escalate pharmacy, inventory and shipment requests that the frozen contract cannot represent. They do not advertise implemented external effects.
-
-## Technology
-
-- **Gnani Prisma v2.5:** real backend REST transcription, `POST /stt/v3`.
-- **Gnani Timbre v2.5:** real backend synthesis, `POST /api/v1/tts/inference`, WAV browser playback.
-- Existing Next.js console, FastAPI, deterministic interpreter/policy, SQLite Mission Engine v2 and synthetic world services. No new framework or paid infrastructure.
-
-[Integration details](docs/gnani-integration.md) document implemented contracts. Credentials never enter browser variables or bundles.
-
-## Measured evidence - 2026-10-03
-
-[Evidence snapshot](docs/evaluation-evidence.json) contains the latest offline evaluation and earlier real provider results. These measurements describe the fixture scope.
-
-| Check | Result |
-|---|---|
-| Unit suite | 53 passed |
-| Offline v2 expected outcomes | 21/21 |
-| Supported mission completion | 11/11, including changing-world case |
-| Replanning / no-answer | 1/1 each; no-answer bounded to 2 attempts |
-| Duplicate notification / unsafe effects | 0 / 0 |
-| Confirmation compliance | 21/21 |
-| English / Kannada / Hinglish named fixture runs | 4/4, 1/1, 1/1 valid respectively |
-| Median local mission latency | 119.37 ms; excludes speech and browser pacing |
-| Real synthetic-audio English / Kannada v2 | Both completed with start/final Timbre audio and 5-minute detour |
-| Real speech loop latency | English 15,918 ms; Kannada 15,990 ms; includes 10-second cooldown |
-| Human microphone completion | Unverified; earlier transcript observed, but attempt escalated |
-| Frontend / changing-world browser | Build passed; browser completed with East lot, fuel and 4:30 ETA |
-| Secret scan | 0 findings; no tracked credentials, recordings or local databases |
-
-## Verify
+## Reproduce the evidence
 
 ```powershell
 python -m unittest discover -s tests -v
 python -m app.evaluation.runners.evaluate
+python -m app.evaluation.runners.chaos
 python -m app.evaluation.runners.mission_demo
 python -m app.evaluation.runners.secret_scan
 cd app/web
 npm run build
 ```
 
-Opt-in real provider checks use existing speech credits:
-
-```powershell
-python -m app.evaluation.runners.voice_demo --real --case english
-python -m app.evaluation.runners.voice_demo --real --case kannada
-python -m app.evaluation.runners.voice_demo --real --case hinglish
-```
-
-Each synthesizes input, transcribes it, runs persistent v2 and requests start/completion audio. No automated paid retries. `--reuse-audio` uses an existing ignored WAV. Synthetic checks do not establish microphone accuracy or pronunciation.
-
-## Safety and limitations
-
-Strict schemas and allowlists reject unsupported behavior. Counter-offers require the exact displayed confirmation ID and current revision; stale approval fails. Bound keys, durable command/effect identities and transactions prevent duplicate synthetic effects. Replanning retains completed contact/calendar work. Speech failures preserve committed mission state.
-
-This is an unauthenticated local demo with a synthetic clock, finite interpretation scope and caches without automatic expiry. Real external services, noisy-car quality and human listening remain gates. See [submission brief and 60-second script](docs/submission.md), [architecture](docs/architecture.md) and [Mission Engine v2](docs/mission-engine-v2.md).
+`chaos` includes the automatic API restart check. Real-provider commands and the remaining microphone gate are documented in [submission evidence](docs/submission-evidence.md).

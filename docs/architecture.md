@@ -1,5 +1,33 @@
 # Architecture
 
+**The reasoning component is replaceable; execution, policy, persistence and recovery belong to DriveOS.**
+
+```mermaid
+flowchart TD
+    B[Browser · microphone / mission console] --> P[Prisma · actual transcription]
+    P --> N[Normalized transcript]
+    N --> I[Mission Interpreter · deterministic MockEvon]
+    E[Optional verified Evon deployment · currently unverified] -. replace interpreter .-> S
+    I --> S[Frozen MissionPlan v1 schema]
+    S --> V[DriveOS policy · authorization / constraints]
+    V --> M[Mission Engine · owns execution and recovery]
+    M <--> D[(SQLite · state / commands / effects / history)]
+    M --> X[Synthetic external services · call / calendar / parking / fuel / maps]
+    X --> W[World events · availability / replies / traffic / failures]
+    W --> R[Replan only affected tasks · preserve committed work]
+    R --> M
+    M --> T[Timbre · confirmed outcome / approval speech]
+    T --> B
+    M --> O[Mission Record · operational events / constraints]
+    O --> B
+    classDef core fill:#243622,stroke:#c8f76a,color:#f0f4ef;
+    classDef voice fill:#1a211c,stroke:#86977f,color:#f0f4ef;
+    class M,V,R,D core;
+    class B,P,T voice;
+```
+
+The model/interpreter proposes; schema and policy validate; the engine commits actions. World changes do not give the interpreter ownership of state. See [technical design](technical-design.md) for transaction, replay and confirmation semantics.
+
 Final submission runtime: Prisma → DriveOS Mission Interpreter (retained deterministic MockEvon) → deterministic policy → Mission Engine v2 → synthetic external services → replanning → Timbre. Evon was investigated but is not in this runtime unless actual inference is verified. The primary console uses speech_test; legacy live configuration remains an optional, unverified path and is not needed for submission. See [submission](submission.md).
 
 DriveOS is one Next.js console and one FastAPI service. A structured mission graph is the source of truth. The planner proposes tasks; deterministic policy decides whether tools may run. Tool outputs and concise action events are visible, never hidden reasoning.
