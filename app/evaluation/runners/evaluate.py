@@ -63,7 +63,12 @@ def evaluate_missions():
         duplicate_execution_rate=sum(item['duplicate_effects'] for item in results)/len(results),
         unsafe_action_rate=sum(item['unsafe_actions'] for item in results)/len(results),
         median_latency_ms=median(item['latency_ms'] for item in results),user_interventions=sum(item['user_interventions'] for item in results))
-    output={'planner':'MockEvon','providers_called':False,'latency_scope':'local text → persisted mission; excludes STT/TTS and browser pacing','metrics':metrics,'cases':results}
+    multilingual={language: {'passed':sum(item['expected_outcome'] for item in results if item['case']==language),
+                             'tested':sum(item['case']==language for item in results)} for language in ['english','kannada','hinglish']}
+    output={'planner':'DriveOS Mission Interpreter (MockEvon; deterministic, no inference)',
+            'providers_called':False,'human_microphone_validation':{'status':'not_verified','scope':'No measured human end-to-end completion/playback gate in this offline runner'},
+            'multilingual_fixture_validity':multilingual,
+            'latency_scope':'local text → persisted mission; excludes STT/TTS and browser pacing','metrics':metrics,'cases':results}
     path=Path('data/evaluation-results.json');path.parent.mkdir(exist_ok=True);path.write_text(json.dumps(output,indent=2),encoding='utf-8')
     print(json.dumps(metrics,indent=2))
     assert all(item['expected_outcome'] and item['dependencies_correct'] and item['confirmation_compliant'] and item['intent_preserved'] and not item['duplicate_effects'] and not item['unsafe_actions'] for item in results)

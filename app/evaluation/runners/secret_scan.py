@@ -21,6 +21,8 @@ def main():
     tracked=subprocess.check_output(['git','ls-files','-z'],cwd=root).decode().split('\0')
     for name in tracked:
         if name:
+            if Path(name).suffix.lower() in {'.wav','.mp3','.webm','.ogg','.sqlite','.sqlite3','.db'}:
+                findings.append('tracked local recording/database:'+name)
             blob=subprocess.run(['git','show',':'+name],cwd=root,capture_output=True,check=True).stdout
             inspect('index:'+name,blob)
     inspect('Git history',subprocess.check_output(['git','log','--all','--format=','--patch'],cwd=root))

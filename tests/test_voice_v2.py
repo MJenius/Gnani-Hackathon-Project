@@ -33,6 +33,10 @@ class VoiceV2Tests(unittest.TestCase):
             self.assertEqual(persistent.get(mission['id']),mission)
             body={'expected_revision':mission['revision']}
             endpoint='/missions/'+mission['id']+'/speech'
+            from app.speech.gnani import ProviderError
+            with patch('app.speech.loop.synthesize',side_effect=ProviderError('Timbre unavailable')):
+                self.assertEqual(self.client.post(endpoint,json=body).status_code,502)
+                self.assertEqual(persistent.get(mission['id']),mission)
             count=tts.call_count
             for _ in range(2): self.assertEqual(self.client.post(endpoint,json=body).status_code,200)
             self.assertEqual(tts.call_count,count+1)
@@ -98,3 +102,11 @@ class VoiceV2Tests(unittest.TestCase):
             response=self.client.post('/voice/missions',files={'audio':('test.wav',audio(),'audio/wav')},data={'request_key':'live','authorized':'true','mode':'live','persistent_mission':'true'})
             self.assertEqual(response.status_code,502)
             self.assertIn('Evon unavailable',response.text)
+
+    def test_fillers_preserve_scope_and_constraints(self):
+        text=json.loads(Path('app/evaluation/fixtures/voice_missions.json').read_text(encoding='utf-8'))[0]['text']
+        supported='Okay, please '+text.replace('Tell Ananya', 'um Tell Ananya').replace('4:30', 'four thirty')
+        self.assertEqual(len(MockEvon().plan_mission(planning_input(supported)).tasks),4)
+        for unsupported in [supported+' Also buy coffee.',supported.replace('Ananya','Anita'),
+                            supported.replace('five minutes','ten minutes'),supported.replace('Tell Ananya','do not Tell Ananya')]:
+            self.assertEqual(MockEvon().plan_mission(planning_input(unsupported)).tasks,[])

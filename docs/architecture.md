@@ -1,5 +1,7 @@
 # Architecture
 
+Final submission runtime: Prisma → DriveOS Mission Interpreter (retained deterministic MockEvon) → deterministic policy → Mission Engine v2 → synthetic external services → replanning → Timbre. Evon was investigated but is not in this runtime unless actual inference is verified. The primary console uses speech_test; legacy live configuration remains an optional, unverified path and is not needed for submission. See [submission](submission.md).
+
 DriveOS is one Next.js console and one FastAPI service. A structured mission graph is the source of truth. The planner proposes tasks; deterministic policy decides whether tools may run. Tool outputs and concise action events are visible, never hidden reasoning.
 
 The primary flow captures bounded mono WAV, sends it server-side to Prisma, conservatively normalizes the transcript, validates a frozen mission plan and deterministic policy, and starts persistent v2 execution. The browser advances synthetic transitions and requests cached Timbre audio for completion/confirmation. Legacy one-notification endpoints remain for compatibility. Simulation uses labeled browser speech; live requires configured EvonClient and never substitutes MockEvon. Unsupported missions escalate.

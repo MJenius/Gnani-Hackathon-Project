@@ -102,10 +102,8 @@ class MockEvon(EvonClient):
 
     def plan_mission(self, request):
         from app.agent.planner.contract import MissionPlan
-        from app.speech.normalize import normalize
+        from app.speech.normalize import normalize, fixture_key
         from pathlib import Path
-        def fixture_key(value):
-            return normalize(value).lower().replace('i am',"i'm").replace('does not',"doesn't").replace('four thirty','4:30').replace('04:30','4:30').replace('5 minutes','five minutes').translate(str.maketrans('', '', '.,!?'))
         text=normalize(request['mission']).lower().rstrip('.!?')
         fixtures=json.loads((Path(__file__).resolve().parents[2]/'evaluation/fixtures/voice_missions.json').read_text(encoding='utf-8'))
         signature={"i'm running late for my meeting. tell ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes","i'm running late for my meeting. tell ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes",
@@ -118,12 +116,15 @@ class MockEvon(EvonClient):
         tasks=[]
         def add(action,arguments,depends_on=None):
             tasks.append({'id':'t'+str(len(tasks)+1),'action':action,'arguments':arguments,'depends_on':depends_on or []})
-        if text in signature or text in negotiation:
-            add('contact.negotiate',{'contact':'Ananya','delay_minutes':20 if text in negotiation else request['context']['eta_delay_minutes'],'proposed_time':'16:30'})
+        supported_signature=fixture_key(text) in {fixture_key(value) for value in signature}
+        supported_negotiation=fixture_key(text) in {fixture_key(value) for value in negotiation}
+        supported_parking=fixture_key(text) in {fixture_key(value) for value in parking}
+        if supported_signature or supported_negotiation:
+            add('contact.negotiate',{'contact':'Ananya','delay_minutes':20 if supported_negotiation else request['context']['eta_delay_minutes'],'proposed_time':'16:30'})
             add('calendar.reschedule',{'meeting_id':'demo-meeting','proposed_time':'16:30'},['t1'])
-        if text in signature or text in parking:
+        if supported_signature or supported_parking:
             add('parking.select',{'destination':'office','max_detour_minutes':5})
-        if text in signature:
+        if supported_signature:
             add('fuel.select',{'destination':'office','max_detour_minutes':5},['t3'])
         return MissionPlan(version='1',goal='Handle the synthetic mission' if tasks else 'Unsupported demo mission',tasks=tasks,needs_confirmation=False)
 

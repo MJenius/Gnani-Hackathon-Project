@@ -125,7 +125,7 @@ def create_mission(request: MissionRequest):
 @app.post('/voice/missions')
 def voice_mission(audio: UploadFile = File(...), language: Literal['en-IN','kn-IN','hi-IN'] = Form('en-IN'),
                   request_key: str = Form(..., min_length=1, max_length=100), authorized: bool = Form(False),
-                  mode: Literal['live','speech_test'] = Form('live'),
+                  mode: Literal['live','speech_test'] = Form('speech_test'),
                   persistent_mission: bool = Form(False), demo: Literal['none','parking-change'] = Form('none')):
     if not authorized:
         raise HTTPException(403, 'Authorize the synthetic notification before starting voice capture')

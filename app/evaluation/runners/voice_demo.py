@@ -13,13 +13,13 @@ from app.mission.execution import persistent
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--real',action='store_true',help='Use configured Gnani credentials and existing speech credits; no retries')
-    parser.add_argument('--case',choices=['english','kannada'],required=True)
+    parser.add_argument('--case',choices=['english','kannada','hinglish'],required=True)
     parser.add_argument('--reuse-audio',action='store_true',help='Reuse saved synthetic input; Prisma and Timbre remain real')
     args=parser.parse_args()
     if not args.real: parser.error('Real provider calls require --real')
     fixtures=json.loads(Path('app/evaluation/fixtures/voice_missions.json').read_text(encoding='utf-8'))
     fixture=next(item for item in fixtures if item['id']==args.case)
-    language='kn-IN' if args.case=='kannada' else 'en-IN'
+    language={'english':'en-IN','kannada':'kn-IN','hinglish':'hi-IN'}[args.case]
     result={'case':args.case,'planner':'MockEvon','evon_used':False,'input_source':'synthetic Timbre speech, not microphone','success':False}
     started=perf_counter()
     try:
