@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: ["mission-data:/driveos/data"]
+  postgres:
+    image: postgres:17-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_DB: driveos
+      POSTGRES_USER: driveos
+      POSTGRES_PASSWORD: local-demo-only
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+volumes:
+  mission-data:
+  postgres-data:
