@@ -1,0 +1,17 @@
+[
+  {"id":"english","text":"I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.","signature":true},
+  {"id":"kannada","text":"ನಾನು ಸಭೆಗೆ ತಡವಾಗುತ್ತಿದ್ದೇನೆ. ಅನನ್ಯ ಅವರಿಗೆ ತಿಳಿಸಿ, ನಾಲ್ಕೂವರೆಗೆ ಆಗುತ್ತದೆಯೇ ಕೇಳಿ, ಅವರ ಕಚೇರಿ ಬಳಿ ಪಾರ್ಕಿಂಗ್ ಹುಡುಕಿ, ಐದು ನಿಮಿಷಕ್ಕಿಂತ ಹೆಚ್ಚು ಆಗದಿದ್ದರೆ ಇಂಧನ ತುಂಬಿಸಿ.","signature":true},
+  {"id":"prisma-kannada-observed","text":"ನಾನು ಸಭೆಗೆ ತಡವಾಗುತ್ತಿದ್ದೇನೆ ಅನನ್ಯ ಅವರಿಗೆ ತಿಳಿಸಿ ನಾಲ್ಕೂವರೆಗೆ ಆಗುತ್ತದೆಯೇ ಕೇಳಿ ಅವರ ಕಚೇರಿ ಬಳಿ ಪಾರ್ಕಿಂಗ್ ಹುಡುಕಿ 5 ನಿಮಿಷಕ್ಕಿಂತ ಹೆಚ್ಚು ಆಗದಿದ್ದರೆ ಇಂಧನ ತುಂಬಿಸಿ","signature":true},
+  {"id":"hinglish","text":"Meeting ke liye late ho raha hoon. Ananya ko batao, 4:30 works poochho, office ke paas parking dhundo, aur fuel agar five minutes se zyada detour nahi hota.","signature":true},
+  {"id":"spoken-time-numbers","text":"I'm running late for my meeting. Tell Ananya, ask if four thirty works, find parking near her office, and get fuel if it doesn't add more than 5 minutes.","signature":true},
+  {"id":"expanded-contractions","text":"I am running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it does not add more than five minutes.","signature":true},
+  {"id":"punctuation-variation","text":"I'm running late for my meeting tell Ananya ask if 4:30 works find parking near her office and get fuel if it doesn't add more than five minutes","signature":true},
+  {"id":"prisma-english-observed","text":"i'm running late for my meeting tell ananya ask if 04:30 works find parking near her office and get fuel if it doesn't add more than five minutes","signature":true},
+  {"id":"human-microphone-english-observed","text":"i'm running late for my meeting tell ananya that also ask if 04:30 works find some parking near her office and get fuel if it doesn't add more than five minutes","signature":true},
+  {"id":"changed-budget","text":"I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than ten minutes.","signature":false},
+  {"id":"changed-name","text":"I'm running late for my meeting. Tell Anita, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.","signature":false},
+  {"id":"changed-time","text":"I'm running late for my meeting. Tell Ananya, ask if 5:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.","signature":false},
+  {"id":"personal","text":"Pick up Mom's medicine. Find a pharmacy on my route, confirm stock, and tell her my ETA.","signature":false,"limitation":"Frozen v1 has no pharmacy or Mom tool; escalate."},
+  {"id":"work","text":"Tell the customer I'm 20 minutes away, check whether the replacement part is available, and replan if it isn't.","signature":false,"limitation":"Frozen v1 has no customer or inventory tool; escalate."},
+  {"id":"delivery","text":"The receiver isn't answering. Find out whether they can still take the shipment and update me if the slot changes.","signature":false,"limitation":"Frozen v1 has no receiver or shipment tool; escalate."}
+]

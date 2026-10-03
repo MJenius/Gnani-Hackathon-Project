@@ -52,6 +52,9 @@ def build(hardware):
         if not shutil.which('nvcc'): raise RuntimeError('CUDA compiler unavailable in this notebook')
         architectures=';'.join(str(int(round(cap*10))) for cap in sorted(set(hardware['compute_capabilities'])))
         options+=['-DGGML_CUDA=ON','-DCMAKE_CUDA_ARCHITECTURES='+architectures]
+        # Kaggle mounts the driver outside CMake's default library search path.
+        driver=Path('/usr/local/nvidia/lib64/libcuda.so')
+        if driver.exists(): options+=['-DCUDA_cuda_driver_LIBRARY='+str(driver)]
     else:
         options+=['-DGGML_CUDA=OFF']
     subprocess.run(options,check=True)

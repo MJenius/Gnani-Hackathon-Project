@@ -7,7 +7,7 @@ from app.mission.execution import persistent
 from app.mission.execution.engine import execute
 from app.config import capabilities
 from app.speech.gnani import ProviderError, wav_info
-from app.speech.loop import run as run_voice
+from app.speech.loop import run as run_voice, mission_speech
 from app.speech.usage import BudgetExceeded
 
 app = FastAPI(title="DriveOS", version="0.1.0")
@@ -66,6 +66,8 @@ def mission_operation(call,*args):
     except LookupError as error: raise HTTPException(404,str(error)) from error
     except PermissionError as error: raise HTTPException(403,str(error)) from error
     except ValueError as error: raise HTTPException(409,str(error)) from error
+    except ProviderError as error: raise HTTPException(502,str(error)) from error
+    except BudgetExceeded as error: raise HTTPException(429,str(error)) from error
 
 @app.post('/missions/start')
 def start_mission(request: StartMission):
@@ -123,15 +125,18 @@ def create_mission(request: MissionRequest):
 @app.post('/voice/missions')
 def voice_mission(audio: UploadFile = File(...), language: Literal['en-IN','kn-IN','hi-IN'] = Form('en-IN'),
                   request_key: str = Form(..., min_length=1, max_length=100), authorized: bool = Form(False),
-                  mode: Literal['live','speech_test'] = Form('live')):
+                  mode: Literal['live','speech_test'] = Form('live'),
+                  persistent_mission: bool = Form(False), demo: Literal['none','parking-change'] = Form('none')):
     if not authorized:
         raise HTTPException(403, 'Authorize the synthetic notification before starting voice capture')
     if mode == 'live' and not capabilities()['evon_configured']:
         raise HTTPException(503, 'Evon is not configured; full Gnani live mode is unavailable')
+    if not capabilities()['speech_configured']:
+        raise HTTPException(503,'Gnani speech credentials are not configured')
     content = audio.file.read(4_000_001)
     try:
         wav_info(content)
-        mission, output, speech_error = run_voice(content, language, request_key, authorized, mode)
+        mission, output, speech_error = run_voice(content, language, request_key, authorized, mode,persistent_mission,demo)
         return {**mission, 'audio_base64':base64.b64encode(output).decode('ascii') if output else None,
                 'audio_type':'audio/wav', 'speech_error':speech_error}
     except PermissionError as error:
@@ -142,3 +147,11 @@ def voice_mission(audio: UploadFile = File(...), language: Literal['en-IN','kn-I
         raise HTTPException(502, str(error)) from error
     except BudgetExceeded as error:
         raise HTTPException(429, str(error)) from error
+
+class SpeechRequest(StrictRequest):
+    expected_revision: int = Field(ge=0)
+
+@app.post('/missions/{mission_id}/speech')
+def speak_mission(mission_id: str,request: SpeechRequest):
+    output=mission_operation(mission_speech,mission_id,request.expected_revision)
+    return {'audio_base64':base64.b64encode(output).decode('ascii'),'audio_type':'audio/wav'}

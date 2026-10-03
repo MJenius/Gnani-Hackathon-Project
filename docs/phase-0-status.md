@@ -2,6 +2,8 @@
 
 Current decision: Phase 0 is complete enough to proceed. Mission Engine v2 is implemented; only independent Evon GPU verification continues. The observations below preserve the distinction between verified speech and unverified model/microphone inference.
 
+Current product validation is in [hackathon-status.md](hackathon-status.md): real English/Kannada synthetic-input Prisma → persistent v2 → Timbre now passes; human microphone and Evon remain separate gates. The sections below preserve the original Phase 0 observations.
+
 Completed: master context/specifications reviewed; speech key and HF token stored in ignored local `.env`; Git/Docker secret exclusions; official speech API contracts; real English Prisma/Timbre round trip; real Kannada and Kannada–English round trips; separate simulation/speech-test/live modes; server-side adapters, metadata logging, local call caps and offline tests.
 
 Initial English mission TTS ~1,342 ms and STT ~464 ms. Kannada script, synthetic contact and numeric delay were detected in appropriate cases. These single synthetic observations are not benchmarks or noisy-microphone accuracy evaluations. Testing encountered HTTP 429 and stopped without automatic retries.

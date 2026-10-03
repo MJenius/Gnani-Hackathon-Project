@@ -8,6 +8,17 @@ from time import perf_counter
 class BudgetExceeded(RuntimeError):
     pass
 
+def budget_status():
+    path=Path(os.getenv('DRIVEOS_USAGE_DB','data/gnani-usage.sqlite3'))
+    stage=os.getenv('DRIVEOS_API_STAGE','dev')
+    maximum=int(os.getenv('DRIVEOS_API_MAX_REQUESTS','40'))
+    used=0
+    if path.exists():
+        with closing(sqlite3.connect(path,timeout=10)) as db:
+            exists=db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='usage'").fetchone()
+            if exists: used=db.execute('SELECT count(*) FROM usage WHERE stage=?',(stage,)).fetchone()[0]
+    return {'stage':stage,'maximum':maximum,'used':used,'remaining':max(0,maximum-used)}
+
 @contextmanager
 def measured(model, operation, units):
     path = Path(os.getenv('DRIVEOS_USAGE_DB', 'data/gnani-usage.sqlite3'))

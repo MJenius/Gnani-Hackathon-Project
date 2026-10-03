@@ -148,6 +148,8 @@ class MissionV2Tests(unittest.TestCase):
             self.assertEqual(response.status_code,422)
     def test_failed_transition_preserves_committed_call_and_can_resume(self):
         mission=self.act(self.start())
+        while mission['world']['contact']['call_state']!='REQUEST_COMMUNICATED':
+            mission=self.act(mission)
         with patch('app.mission.execution.persistent.services.contact',side_effect=RuntimeError('synthetic service failure')):
             with self.assertRaises(RuntimeError):
                 persistent.command(mission['id'],'advance',{'request_key':'failing','expected_revision':mission['revision']})

@@ -12,7 +12,8 @@ def mode():
     return value
 
 def capabilities():
+    from app.speech.usage import budget_status
     return {'mode': mode(), 'speech_configured': bool(os.getenv('GNANI_API_KEY')),
             'evon_configured': bool(os.getenv('EVON_MODE','mock')=='remote' and os.getenv('EVON_BASE_URL') and os.getenv('EVON_MODEL')),
             'evon_mode':os.getenv('EVON_MODE','mock'),
-            'external_tools': 'simulated', 'gnani_connected': False}
+            'external_tools': 'simulated', 'gnani_connected': False,'request_budget':budget_status()}

@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 from app.agent.planner.contract import MissionPlan, planning_input
-from app.agent.planner.evon import MockEvon
+from app.agent.planner.evon import mission_planner
 from app.agent.policies.actions import validate, validate_calendar_change
 from app.mission.execution.graph import LABELS
 from app.tools import world as services
@@ -91,6 +91,7 @@ def pending_confirmation(mission,task,action,arguments,label):
     return bound
 
 def summary(mission):
+    if not mission['tasks']: return 'This request is outside the supported demo fixtures. No external action was taken.'
     world=mission['world'];calendar=task_for(mission,'calendar.reschedule')
     text=['Synthetic mission complete.' if mission['status']=='COMPLETED' else 'Some mission tasks need your attention.']
     if calendar:
@@ -141,13 +142,14 @@ def start(request):
         if old:
             if old[0]!=fingerprint: raise ValueError('Start key belongs to another mission')
             return json.loads(old[1])
+        # ponytail: local DB lock spans planning; use per-request planning jobs before concurrent serving.
         if request.get('plan') is not None: plan=MissionPlan.model_validate(request['plan'])
-        else: plan=MockEvon().plan_mission(planning_input(request['transcript']))
+        else: plan=mission_planner(request.get('mode','simulation')).plan_mission(planning_input(request['transcript']))
         for task in plan.tasks: validate(task.action,request['authorized'])
         stamp=now();scenario=request.get('scenario') or {}
         mission={'id':str(uuid4()),'engine_version':2,'contract_version':'1','goal':request['transcript'],
-                 'transcript':request['transcript'],'plan':plan.model_dump(),'planner':'MockEvon' if request.get('plan') is None else 'provided-plan',
-                 'mode':'simulation','external_tools':'simulated','authorized':request['authorized'],
+                 'transcript':request['transcript'],'plan':plan.model_dump(),'planner':('Evon' if request.get('mode')=='live' else 'MockEvon') if request.get('plan') is None else 'provided-plan',
+                 'mode':request.get('mode','simulation'),'external_tools':'simulated','authorized':request['authorized'],
                  'revision':0,'step':0,'status':'PLANNING','created_at':stamp,'updated_at':stamp,
                  'requirements':{'max_detour_minutes':min([scenario.get('max_detour_minutes',5)]+[node.arguments.max_detour_minutes for node in plan.tasks if node.action in {'parking.select','fuel.select'}]),'include_fuel':True},
                  'requirements_version':0,'world':services.initial(scenario),'route':{'parking':None,'fuel':None},
@@ -222,7 +224,15 @@ def advance(db,mission):
             effect(db,mission,task,'call:'+str(task['attempts']),'contact.call',{'contact':'Ananya','proposed_time':'16:30','attempt':task['attempts']})
             transition(mission,task,'WAITING_ON_EXTERNAL','Calling Ananya, attempt '+str(task['attempts']))
         else:
+            call_state=world['contact']['call_state']
+            stages={'DIALING':('RINGING','Synthetic call ringing'),
+                    'RINGING':('CONNECTED','Synthetic call connected'),
+                    'CONNECTED':('REQUEST_COMMUNICATED','Delay and 4:30 request communicated')}
+            if call_state in stages and (call_state=='DIALING' or world['contact']['response']!='no_answer'):
+                world['contact']['call_state'],message=stages[call_state]
+                event(mission,'CALL_STATE',message,task['id']);return
             output=services.contact(world)
+            event(mission,'CALL_RESULT','Structured simulated response received: '+output['response'],task['id'])
             if output['response']!='no_answer':
                 effect(db,mission,task,'notify','contact.notify_delay',{'contact':'Ananya','delay_minutes':task['inputs']['delay_minutes']})
             if output['response']=='no_answer':

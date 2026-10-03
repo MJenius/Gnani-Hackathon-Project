@@ -1,6 +1,6 @@
 # Zero-cost Evon investigation
 
-Status: prepared, **actual GPU inference unverified**. Both Kaggle and Colab were signed out in the available browser. English/Kannada model responses and a remote endpoint have not yet been obtained. Local contract tests are not evidence of Evon quality. No weights were downloaded to this laptop and no paid service was provisioned.
+Status: **actual GPU inference unverified**. On 2026-10-03 an authenticated Kaggle notebook offered 30 free GPU hours and dual T4s. The prepared notebook was imported and run. CUDA configuration initially failed because CMake could not locate the mounted driver; supplying `/usr/local/nvidia/lib64` resolved configuration and compilation started. The runner now detects this driver path. English/Kannada model responses and a remote endpoint remain unverified until gates pass. No weights were downloaded to the laptop and no paid service was provisioned.
 
 Use `notebooks/evon_free_gpu.ipynb` in an interactive free notebook. Its embedded runner matches `notebooks/evon_free_gpu.py`; it refuses to download on this Windows machine. Select free Kaggle T4 x2 if available, enable Internet, and run cells in order. Account GPU quota, verification and availability must be checked in the actual notebook. Never select paid compute. No HF token is needed: anonymous access to the pinned public GGUF file returned HTTP 200 during investigation.
 

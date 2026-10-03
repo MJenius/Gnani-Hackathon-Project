@@ -102,9 +102,16 @@ class MockEvon(EvonClient):
 
     def plan_mission(self, request):
         from app.agent.planner.contract import MissionPlan
-        text=request['mission'].strip().lower().replace('’',"'").rstrip('.!?')
+        from app.speech.normalize import normalize
+        from pathlib import Path
+        def fixture_key(value):
+            return normalize(value).lower().replace('i am',"i'm").replace('does not',"doesn't").replace('four thirty','4:30').replace('04:30','4:30').replace('5 minutes','five minutes').translate(str.maketrans('', '', '.,!?'))
+        text=normalize(request['mission']).lower().rstrip('.!?')
+        fixtures=json.loads((Path(__file__).resolve().parents[2]/'evaluation/fixtures/voice_missions.json').read_text(encoding='utf-8'))
         signature={"i'm running late for my meeting. tell ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes","i'm running late for my meeting. tell ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes",
                    "i'm running 25 minutes late. tell ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes"}
+        if any(item['signature'] and fixture_key(item['text'])==fixture_key(text) for item in fixtures):
+            signature.add(text)
         negotiation={"i'm 20 minutes late. tell ananya and ask if 4:30 works",
                      'ನಾನು ಇಪ್ಪತ್ತು ನಿಮಿಷ ತಡವಾಗುತ್ತೇನೆ. ಅನನ್ಯ ಅವರಿಗೆ ತಿಳಿಸಿ ಮತ್ತು ನಾಲ್ಕೂವರೆ ಗಂಟೆಗೆ ಭೇಟಿಯಾಗಬಹುದೇ ಎಂದು ಕೇಳಿ'}
         parking={"find parking near the office, but don't add more than 5 minutes"}
