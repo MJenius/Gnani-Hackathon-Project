@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { captureWav } from './capture';
+import MissionDashboard from './mission';
 
-export default function Home() {
+function SpeechConsole() {
   const signature = "I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes.";
   const [transcript, setTranscript] = useState(signature);
   const [scenario, setScenario] = useState({ contact_response: 'accepted', parking_full: false, max_detour_minutes: 5 });
@@ -105,3 +106,5 @@ export default function Home() {
     </section><footer>Prisma and Timbre speech adapters connected. External tools remain simulated. Evon inference is a separate deployment.</footer>
   </main>;
 }
+
+export default function Home() { return <><MissionDashboard/><details className="legacy-console"><summary>Existing speech adapter checks</summary><SpeechConsole/></details></>; }

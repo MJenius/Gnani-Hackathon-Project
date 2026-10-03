@@ -2,7 +2,7 @@
 
 You drive. It handles everything around the drive.
 
-Foundation: Next.js mission console, FastAPI, MockEvon planner and bounded dependency runner, policy validation, synthetic contact notification, durable SQLite mission/audit events and idempotency, and an evaluation harness. Real Prisma v2.5 transcription and Timbre v2.5 synthesis are connected. External contact actions remain simulated. Evon inference is unverified. The original BF16 checkpoint is impractical on this laptop; a free Kaggle/Colab llama.cpp experiment is prepared using a community GGUF conversion. No claim of original-checkpoint evaluation is made.
+Mission Engine v2: Next.js mission console, FastAPI, MockEvon planner and persistent dependency runner, policy validation, synthetic contact notification, durable SQLite mission/audit events and idempotency, and an evaluation harness. Real Prisma v2.5 transcription and Timbre v2.5 synthesis are connected. External contact actions remain simulated. Evon inference is unverified. The original BF16 checkpoint is impractical on this laptop; a free Kaggle/Colab llama.cpp experiment is prepared using a community GGUF conversion. No claim of original-checkpoint evaluation is made.
 
 ## Modes and secrets
 
@@ -30,13 +30,14 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Run the default meeting mission, or use “Tell Ananya I am 25 minutes late.” Test the simulated reply, full-garage and detour controls. Calendar changes only after acceptance; fuel is omitted when it exceeds the remaining route budget. In Gnani speech test mode, Start voice mission records up to 15 seconds; Stop and run mission sends mono WAV through the backend. Capture requires microphone permission and localhost/HTTPS. The result has a playable Timbre confirmation. Kannada/Hindi transcription is available, but MockEvon handles only documented fixture requests. Full multilingual planning requires Evon.
+Open http://localhost:3000. Start the signature mission or “Run changing-world demo”. The garage begins open, becomes full during execution, and the same mission replans autonomously. The console shows call state, ETA and task progress. Change fuel inclusion or the detour limit mid-mission; completed calls/calendar actions are retained. Calendar counter-offers require exact approval. Existing speech checks are available in the collapsed panel below the mission. See [Mission Engine v2](docs/mission-engine-v2.md). In Gnani speech test mode, Start voice mission records up to 15 seconds; Stop and run mission sends mono WAV through the backend. Capture requires microphone permission and localhost/HTTPS. The result has a playable Timbre confirmation. Kannada/Hindi transcription is available, but MockEvon handles only documented fixture requests. Full multilingual planning requires Evon.
 
 ## Verify
 
 ```powershell
 python -m unittest discover -s tests -v
 python -m app.evaluation.runners.evaluate
+python -m app.evaluation.runners.mission_demo
 cd app/web
 npm run build
 ```
@@ -56,4 +57,4 @@ The access check fetches metadata and HEADs one weight shard, without downloadin
 
 Specifications: [product context](docs/product-context.md), [architecture](docs/architecture.md), [UX](docs/ux-spec.md), [mission engine](docs/mission-engine.md), [demo scenarios](docs/demo-scenarios.md), [evaluation](docs/evaluation-plan.md), [backlog](docs/backlog.md), [Gnani verification gates](docs/gnani-integration.md).
 
-Phase 0 verification remains open: real GGUF English/Kannada and expected-plan checks, then the actual microphone → Prisma → Evon → policy → tool → Timbre loop. Product development proceeds independently: Mission Engine v1 already runs the signature mission with MockEvon. `EVON_MODE=mock` is the default; `EVON_MODE=remote` enables separately configured real testing. Free GPU evaluation follows gates A–D before HTTP exposure (Gate E); tunnel code is deliberately absent. See [frozen v1 contract](docs/evon-contract.md), [free notebook](notebooks/evon_free_gpu.ipynb) and [speech fixture slots](test_audio/README.md).
+Phase 0 is accepted as complete enough to proceed. Independent Evon GPU verification remains unverified; no further Phase 0 infrastructure is being added. Mission Engine v2 now executes and replans the signature mission with MockEvon. The frozen contract is unchanged. Actual-microphone/Gnani/Evon end-to-end proof is still not claimed. `EVON_MODE=mock` is the default; `EVON_MODE=remote` enables separately configured real testing. Free GPU evaluation follows gates A–D before HTTP exposure (Gate E); tunnel code is deliberately absent. See [frozen v1 contract](docs/evon-contract.md), [free notebook](notebooks/evon_free_gpu.ipynb) and [speech fixture slots](test_audio/README.md).

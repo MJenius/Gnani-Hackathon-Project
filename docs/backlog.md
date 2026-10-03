@@ -2,9 +2,9 @@
 
 ## Track A — product development (independent of GPU access)
 
-Foundation and first Mission Engine v1 implemented: strict fixture planner (MockEvon), dependency validation, bounded synthetic contact negotiation, acceptance-gated calendar, parking alternative/replan, shared parking/fuel detour budget, SQLite atomic effects and request replay, console conditions/task outcomes. Unsupported requests escalate. No real calls, bookings, purchases or arbitrary-language planning are claimed.
+Foundation, Mission Engine v1 and persistent v2 implemented (see mission-engine-v2.md): strict fixture planner (MockEvon), dependency validation, bounded synthetic contact negotiation, acceptance-gated calendar, parking alternative/replan, shared parking/fuel detour budget, SQLite atomic effects and request replay, console conditions/task outcomes. Unsupported requests escalate. No real calls, bookings, purchases or arbitrary-language planning are claimed.
 
-Next: richer negotiated alternatives, asynchronous waiting/resume/cancellation, route ETA source, authenticated concrete-action confirmations, provider reconciliation, production storage/retention. Then broaden personal/work/delivery scenarios and noisy-microphone UX.
+V2 adds mutable world events, persisted waiting/resume, exact counter-offer approval, synthetic ETA and mid-mission requirement changes. Next: richer negotiated alternatives, authenticated deployment/production concrete-action confirmations, provider reconciliation, production storage/retention. Then broaden personal/work/delivery scenarios and noisy-microphone UX.
 
 ## Track B — Evon verification
 
