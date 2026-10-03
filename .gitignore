@@ -12,3 +12,5 @@ __pycache__/
 data/
 test_audio/**/*.wav
 test_audio/**/*.cached.json
+driveos-human-validation*.json
+brag-output*/

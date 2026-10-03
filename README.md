@@ -18,13 +18,15 @@ A delay creates work across several apps: notify someone, agree a new time, chec
 
 Click **Run changing-world demo** for a deterministic text rehearsal. Synthetic CallPilot dials, rings, connects and returns an acceptance. The calendar updates. The engine selects a garage candidate; the world makes it unavailable before verification. The same mission selects East lot, checks fuel against the remaining shared budget and completes with five added minutes and a simulated 4:30 ETA. Completed contact/calendar work stays completed.
 
-Use **Reset demo** to clear the console, or launch any preset into a fresh isolated world. **Judge mode** includes counter-offers, bounded no-answer, over-budget fuel, changed requirements, service failure and late arrival. **Mission Record** shows persisted events and exports JSON. Replay controls demonstrate duplicate request recovery and stale command rejection through the actual API.
+Use **Reset demo** to create a fresh paused mission with a clean world, then **Continue mission**, or launch any preset into a fresh isolated world. **Judge mode** includes counter-offers, bounded no-answer, over-budget fuel, changed requirements, service failure and late arrival. **Mission Record** shows persisted events and exports JSON. Replay controls demonstrate duplicate request recovery and stale command rejection through the actual API.
 
 The text rehearsal uses labeled browser speech fallback. **Start Gnani voice mission** captures mono WAV, displays the actual Prisma transcript after conservative normalization, executes the same changing-world flow and requests real Timbre start/final audio. It requires configured credentials, sufficient credits and at least three remaining requests. Autoplay may require pressing play.
 
 Open **Voice settings**, select English, Kannada or Hinglish and expand **What to say** for the finite supported fixtures. Names, time and the five-minute limit are preserved; unsupported goals escalate. Completion speech is currently English. The secondary **Personal example** safely escalates pharmacy/stock work outside the frozen tool contract.
 
-[60-second demo script](docs/demo-script.md) · [Measured submission evidence](docs/submission-evidence.md)
+[60-second demo script](docs/demo-script.md) · [Measured submission evidence](docs/submission-evidence.md) · [Final checklist](docs/final-checklist.md) · [Submission copy](docs/submission-copy.md) · [Short promo details](docs/promo-video.md)
+
+The **Human voice validation** panel gives the exact eight-step test and records human-reported observations in browser local storage only. It never marks microphone validation passed automatically. Do not commit recordings, transcripts or exported local results.
 
 ## Architecture
 

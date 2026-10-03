@@ -684,5 +684,20 @@
     ],
     "speech_path": "text rehearsal / browser speech fallback",
     "providers_called": false
+  },
+  "final_readiness": {
+    "measured_at": "2026-10-03T20:27:48.929820+00:00",
+    "tests_passed": 60,
+    "expected_outcomes": "27/27",
+    "chaos": "13/13",
+    "mission_demo": "COMPLETED",
+    "restart_recovery": "verified",
+    "build": "passed",
+    "secret_scan": "passed",
+    "browser_clean_demo_runs": 3,
+    "local_result_capture": "browser-only; no human result fabricated",
+    "human_microphone": "UNVERIFIED",
+    "human_listening": "UNVERIFIED",
+    "new_provider_requests": 0
   }
 }

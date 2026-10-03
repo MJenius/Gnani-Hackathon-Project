@@ -1,9 +1,11 @@
-// Native browser PCM capture → mono WAV. No third-party service receives this audio.
+// Native browser PCM capture → mono WAV, sent to backend Prisma only on submission.
 export async function captureWav() {
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia)
+    throw new Error('Microphone capture requires localhost or HTTPS in a supported browser.');
   const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } });
   let context;
   try {
-    context = new AudioContext();
+    context = new AudioContext({ sampleRate: 16000 });
     await context.resume();
     const source = context.createMediaStreamSource(stream);
     // ponytail: ScriptProcessor is widely supported but deprecated; move to AudioWorklet for streaming.
@@ -21,6 +23,7 @@ export async function captureWav() {
       const rate = context.sampleRate;
       await context.close();
       const count = samples.reduce((total, chunk) => total + chunk.length, 0);
+      if (!count) throw new Error('No audio captured. Record the full request before stopping.');
       const buffer = new ArrayBuffer(44 + count * 2);
       const view = new DataView(buffer);
       const string = (offset, value) => [...value].forEach((letter, i) => view.setUint8(offset + i, letter.charCodeAt(0)));
