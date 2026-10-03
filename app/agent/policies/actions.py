@@ -1,4 +1,5 @@
-CLASSES = {'contact.notify_delay': 'B', 'payment.purchase': 'C'}
+CLASSES = {'contact.notify_delay': 'B', 'contact.negotiate':'B', 'calendar.reschedule':'B',
+           'parking.select':'A', 'fuel.select':'A', 'payment.purchase': 'C'}
 
 def validate(tool, authorized=False, confirmed=False):
     action_class = CLASSES.get(tool)

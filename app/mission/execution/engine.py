@@ -5,9 +5,12 @@ from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
-from app.agent.planner.demo import extract
+from app.agent.planner.evon import mission_planner
+from app.agent.planner.contract import planning_input
+from app.mission.execution.graph import run as run_graph
 from app.agent.policies.actions import validate
 from app.tools.calls.simulated import notify_delay
+from app import config
 
 def execute(request):
     path = Path(os.getenv('DRIVEOS_DB', 'data/driveos.sqlite3'))
@@ -23,16 +26,31 @@ def execute(request):
                 raise ValueError('Request key already belongs to a different mission')
             return json.loads(old[1])
         now = datetime.now(timezone.utc).isoformat()
+        selected_mode = request.get('mode', 'simulation')
+        if selected_mode not in {'simulation', 'live', 'speech_test'}:
+            raise ValueError('Invalid mission mode')
         mission = {'id': str(uuid4()), 'status': 'PLANNING', 'transcript': request['transcript'],
-                   'tasks': [], 'events': [], 'created_at': now, 'mode': 'simulation'}
+                   'tasks': [], 'events': [], 'created_at': now, 'mode': selected_mode,
+                   'planner': 'evon' if selected_mode == 'live' else 'MockEvon',
+                   'external_tools': 'simulated'}
         def event(status, message):
             mission['events'].append({'status': status, 'message': message,
                                       'timestamp': datetime.now(timezone.utc).isoformat()})
         event('PLANNING', 'Understanding the requested mission')
-        inputs = extract(request['transcript'])
-        if inputs is None:
+        if selected_mode == 'live':
+            if not request['authorized']:
+                raise PermissionError('Notification authorization required before live planning')
+        planner=mission_planner(selected_mode)
+        inputs=planner.extract(request['transcript'])
+        plan=None
+        if inputs is None and selected_mode!='live':
+            plan=planner.plan_mission(planning_input(request['transcript']))
+        if plan and plan.tasks:
+            mission['contract_version']='1'
+            run_graph(db,mission,plan,request,event)
+        elif inputs is None:
             mission['status'] = 'ESCALATED'
-            mission['spoken_response'] = 'Try: Tell Ananya I am 25 minutes late. Other missions are not supported yet.'
+            mission['spoken_response'] = 'This request is outside the supported demo fixtures. Try the delay notification or the signature meeting mission.'
             event('ESCALATED', 'Mission outside the current demo scope')
         else:
             validate('contact.notify_delay', request['authorized'])

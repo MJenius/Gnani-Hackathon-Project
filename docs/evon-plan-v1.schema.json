@@ -1,0 +1,233 @@
+{
+  "$defs": {
+    "CalendarArgs": {
+      "additionalProperties": false,
+      "properties": {
+        "meeting_id": {
+          "const": "demo-meeting",
+          "title": "Meeting Id",
+          "type": "string"
+        },
+        "proposed_time": {
+          "const": "16:30",
+          "title": "Proposed Time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "meeting_id",
+        "proposed_time"
+      ],
+      "title": "CalendarArgs",
+      "type": "object"
+    },
+    "CalendarTask": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^t[0-9]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "action": {
+          "const": "calendar.reschedule",
+          "title": "Action",
+          "type": "string"
+        },
+        "arguments": {
+          "$ref": "#/$defs/CalendarArgs"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Depends On",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "action",
+        "arguments",
+        "depends_on"
+      ],
+      "title": "CalendarTask",
+      "type": "object"
+    },
+    "ContactArgs": {
+      "additionalProperties": false,
+      "properties": {
+        "contact": {
+          "const": "Ananya",
+          "title": "Contact",
+          "type": "string"
+        },
+        "delay_minutes": {
+          "maximum": 120,
+          "minimum": 1,
+          "title": "Delay Minutes",
+          "type": "integer"
+        },
+        "proposed_time": {
+          "const": "16:30",
+          "title": "Proposed Time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contact",
+        "delay_minutes",
+        "proposed_time"
+      ],
+      "title": "ContactArgs",
+      "type": "object"
+    },
+    "ContactTask": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^t[0-9]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "action": {
+          "const": "contact.negotiate",
+          "title": "Action",
+          "type": "string"
+        },
+        "arguments": {
+          "$ref": "#/$defs/ContactArgs"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Depends On",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "action",
+        "arguments",
+        "depends_on"
+      ],
+      "title": "ContactTask",
+      "type": "object"
+    },
+    "SearchArgs": {
+      "additionalProperties": false,
+      "properties": {
+        "destination": {
+          "const": "office",
+          "title": "Destination",
+          "type": "string"
+        },
+        "max_detour_minutes": {
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Max Detour Minutes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "destination",
+        "max_detour_minutes"
+      ],
+      "title": "SearchArgs",
+      "type": "object"
+    },
+    "SearchTask": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^t[0-9]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "parking.select",
+            "fuel.select"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "arguments": {
+          "$ref": "#/$defs/SearchArgs"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Depends On",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "action",
+        "arguments",
+        "depends_on"
+      ],
+      "title": "SearchTask",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": "1",
+      "title": "Version",
+      "type": "string"
+    },
+    "goal": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Goal",
+      "type": "string"
+    },
+    "tasks": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "calendar.reschedule": "#/$defs/CalendarTask",
+            "contact.negotiate": "#/$defs/ContactTask",
+            "fuel.select": "#/$defs/SearchTask",
+            "parking.select": "#/$defs/SearchTask"
+          },
+          "propertyName": "action"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ContactTask"
+          },
+          {
+            "$ref": "#/$defs/CalendarTask"
+          },
+          {
+            "$ref": "#/$defs/SearchTask"
+          }
+        ]
+      },
+      "maxItems": 12,
+      "title": "Tasks",
+      "type": "array"
+    },
+    "needs_confirmation": {
+      "title": "Needs Confirmation",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "version",
+    "goal",
+    "tasks",
+    "needs_confirmation"
+  ],
+  "title": "MissionPlan",
+  "type": "object"
+}

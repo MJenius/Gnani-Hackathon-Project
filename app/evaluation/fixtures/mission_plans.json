@@ -1,0 +1,322 @@
+[
+  {
+    "id": "english-negotiation",
+    "input": {
+      "version": "1",
+      "mission": "I'm 20 minutes late. Tell Ananya and ask if 4:30 works.",
+      "context": {
+        "contact": "Ananya",
+        "meeting_id": "demo-meeting",
+        "destination": "office",
+        "eta_delay_minutes": 25,
+        "meeting_time": "16:00",
+        "requested_new_time": "16:30",
+        "source": "synthetic demo fixtures"
+      },
+      "available_tools": [
+        "contact.negotiate",
+        "calendar.reschedule",
+        "parking.select",
+        "fuel.select"
+      ],
+      "constraints": [
+        "No real calls or purchases",
+        "Calendar change only after explicit acceptance",
+        "At most five total added route minutes",
+        "Unknown or ambiguous requests escalate"
+      ]
+    },
+    "expected": {
+      "contact.negotiate": {
+        "arguments": {
+          "contact": "Ananya",
+          "delay_minutes": 20,
+          "proposed_time": "16:30"
+        },
+        "depends_on": []
+      },
+      "calendar.reschedule": {
+        "arguments": {
+          "meeting_id": "demo-meeting",
+          "proposed_time": "16:30"
+        },
+        "depends_on": [
+          "contact.negotiate"
+        ]
+      }
+    }
+  },
+  {
+    "id": "parking-constraint",
+    "input": {
+      "version": "1",
+      "mission": "Find parking near the office, but don't add more than 5 minutes.",
+      "context": {
+        "contact": "Ananya",
+        "meeting_id": "demo-meeting",
+        "destination": "office",
+        "eta_delay_minutes": 25,
+        "meeting_time": "16:00",
+        "requested_new_time": "16:30",
+        "source": "synthetic demo fixtures"
+      },
+      "available_tools": [
+        "contact.negotiate",
+        "calendar.reschedule",
+        "parking.select",
+        "fuel.select"
+      ],
+      "constraints": [
+        "No real calls or purchases",
+        "Calendar change only after explicit acceptance",
+        "At most five total added route minutes",
+        "Unknown or ambiguous requests escalate"
+      ]
+    },
+    "expected": {
+      "parking.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": []
+      }
+    }
+  },
+  {
+    "id": "kannada-negotiation",
+    "input": {
+      "version": "1",
+      "mission": "ನಾನು ಇಪ್ಪತ್ತು ನಿಮಿಷ ತಡವಾಗುತ್ತೇನೆ. ಅನನ್ಯ ಅವರಿಗೆ ತಿಳಿಸಿ ಮತ್ತು ನಾಲ್ಕೂವರೆ ಗಂಟೆಗೆ ಭೇಟಿಯಾಗಬಹುದೇ ಎಂದು ಕೇಳಿ.",
+      "context": {
+        "contact": "Ananya",
+        "meeting_id": "demo-meeting",
+        "destination": "office",
+        "eta_delay_minutes": 25,
+        "meeting_time": "16:00",
+        "requested_new_time": "16:30",
+        "source": "synthetic demo fixtures"
+      },
+      "available_tools": [
+        "contact.negotiate",
+        "calendar.reschedule",
+        "parking.select",
+        "fuel.select"
+      ],
+      "constraints": [
+        "No real calls or purchases",
+        "Calendar change only after explicit acceptance",
+        "At most five total added route minutes",
+        "Unknown or ambiguous requests escalate"
+      ]
+    },
+    "expected": {
+      "contact.negotiate": {
+        "arguments": {
+          "contact": "Ananya",
+          "delay_minutes": 20,
+          "proposed_time": "16:30"
+        },
+        "depends_on": []
+      },
+      "calendar.reschedule": {
+        "arguments": {
+          "meeting_id": "demo-meeting",
+          "proposed_time": "16:30"
+        },
+        "depends_on": [
+          "contact.negotiate"
+        ]
+      }
+    }
+  },
+  {
+    "id": "signature-repeat-1",
+    "input": {
+      "version": "1",
+      "mission": "I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes.",
+      "context": {
+        "contact": "Ananya",
+        "meeting_id": "demo-meeting",
+        "destination": "office",
+        "eta_delay_minutes": 25,
+        "meeting_time": "16:00",
+        "requested_new_time": "16:30",
+        "source": "synthetic demo fixtures"
+      },
+      "available_tools": [
+        "contact.negotiate",
+        "calendar.reschedule",
+        "parking.select",
+        "fuel.select"
+      ],
+      "constraints": [
+        "No real calls or purchases",
+        "Calendar change only after explicit acceptance",
+        "At most five total added route minutes",
+        "Unknown or ambiguous requests escalate"
+      ]
+    },
+    "expected": {
+      "contact.negotiate": {
+        "arguments": {
+          "contact": "Ananya",
+          "delay_minutes": 25,
+          "proposed_time": "16:30"
+        },
+        "depends_on": []
+      },
+      "calendar.reschedule": {
+        "arguments": {
+          "meeting_id": "demo-meeting",
+          "proposed_time": "16:30"
+        },
+        "depends_on": [
+          "contact.negotiate"
+        ]
+      },
+      "parking.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": []
+      },
+      "fuel.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": [
+          "parking.select"
+        ]
+      }
+    }
+  },
+  {
+    "id": "signature-repeat-2",
+    "input": {
+      "version": "1",
+      "mission": "I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes.",
+      "context": {
+        "contact": "Ananya",
+        "meeting_id": "demo-meeting",
+        "destination": "office",
+        "eta_delay_minutes": 25,
+        "meeting_time": "16:00",
+        "requested_new_time": "16:30",
+        "source": "synthetic demo fixtures"
+      },
+      "available_tools": [
+        "contact.negotiate",
+        "calendar.reschedule",
+        "parking.select",
+        "fuel.select"
+      ],
+      "constraints": [
+        "No real calls or purchases",
+        "Calendar change only after explicit acceptance",
+        "At most five total added route minutes",
+        "Unknown or ambiguous requests escalate"
+      ]
+    },
+    "expected": {
+      "contact.negotiate": {
+        "arguments": {
+          "contact": "Ananya",
+          "delay_minutes": 25,
+          "proposed_time": "16:30"
+        },
+        "depends_on": []
+      },
+      "calendar.reschedule": {
+        "arguments": {
+          "meeting_id": "demo-meeting",
+          "proposed_time": "16:30"
+        },
+        "depends_on": [
+          "contact.negotiate"
+        ]
+      },
+      "parking.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": []
+      },
+      "fuel.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": [
+          "parking.select"
+        ]
+      }
+    }
+  },
+  {
+    "id": "signature-repeat-3",
+    "input": {
+      "version": "1",
+      "mission": "I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes.",
+      "context": {
+        "contact": "Ananya",
+        "meeting_id": "demo-meeting",
+        "destination": "office",
+        "eta_delay_minutes": 25,
+        "meeting_time": "16:00",
+        "requested_new_time": "16:30",
+        "source": "synthetic demo fixtures"
+      },
+      "available_tools": [
+        "contact.negotiate",
+        "calendar.reschedule",
+        "parking.select",
+        "fuel.select"
+      ],
+      "constraints": [
+        "No real calls or purchases",
+        "Calendar change only after explicit acceptance",
+        "At most five total added route minutes",
+        "Unknown or ambiguous requests escalate"
+      ]
+    },
+    "expected": {
+      "contact.negotiate": {
+        "arguments": {
+          "contact": "Ananya",
+          "delay_minutes": 25,
+          "proposed_time": "16:30"
+        },
+        "depends_on": []
+      },
+      "calendar.reschedule": {
+        "arguments": {
+          "meeting_id": "demo-meeting",
+          "proposed_time": "16:30"
+        },
+        "depends_on": [
+          "contact.negotiate"
+        ]
+      },
+      "parking.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": []
+      },
+      "fuel.select": {
+        "arguments": {
+          "destination": "office",
+          "max_detour_minutes": 5
+        },
+        "depends_on": [
+          "parking.select"
+        ]
+      }
+    }
+  }
+]
