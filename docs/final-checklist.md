@@ -37,7 +37,7 @@ Status meanings: **VERIFIED** = recorded engineering/provider evidence; **UNVERI
 | Item | Status | Evidence / remaining action |
 |---|---|---|
 | Changing-world demo | VERIFIED | Tested execution; all external world services SIMULATED: Clean isolated world per run: contact → calendar → parking → garage full → same-mission replan → fuel limit → ETA → completion |
-| Repeatability / reset | VERIFIED | Reset creates a new paused persisted mission; Continue executes; prior records retained; no database edits |
+| Repeatability / reset | VERIFIED | Reset clears the active mission/transcript/playback; next Run starts a new clean world; prior records retained; no database edits |
 | Judge presets | VERIFIED | Offline evaluation/chaos and bounded failure presets; external services SIMULATED |
 | Mission Record | VERIFIED | Actual persisted events and JSON export; external effects represented in that record are synthetic |
 | Short promo | VERIFIED | Local Brag render: 22 seconds, 1920×1080, 30 fps, H.264/AAC, 660 frames; actual console, synthetic-service labels and historical pending-human-validation disclosure; this earlier text promo predates the successful human run and is not the final live submission video. See docs/promo-video.md; publication remains unverified |
@@ -107,7 +107,7 @@ npm run build
 
 No provider calls or human microphone simulation are part of these checks. Detailed prior measurements remain in docs/submission-evidence.md; local final logs are in ignored data/final-verification/.
 
-Browser repeatability was checked with three distinct synthetic missions: Reset → Continue, Run changing-world demo, then Reset → Continue. Each started at revision 0 with an available garage and no selected route, and finished at revision 12 with East lot, fuel, five added minutes and a synthetic 4:30 ETA. Human checkboxes stayed unchecked and no manual result was fabricated.
+Before the blank-console refinement, browser repeatability was checked with three distinct synthetic missions: Reset → Continue, Run changing-world demo, then Reset → Continue. Each started at revision 0 with an available garage and no selected route, and finished at revision 12 with East lot, fuel, five added minutes and a synthetic 4:30 ETA. Human checkboxes stayed unchecked and no manual result was fabricated.
 
 ## Final human English record — 2026-10-04
 

@@ -34,7 +34,7 @@ export default function MissionDashboard() {
     fetch('/api/health').then(response=>response.json()).then(setCapabilities).catch(()=>setError('API unavailable.'));
     const id=localStorage.getItem('driveos-mission');
     if (id) fetch('/api/missions/'+encodeURIComponent(id)).then(response => response.ok?response.json():null).then(value => {
-      if (value) {
+      if (value && localStorage.getItem('driveos-mission')===id) {
         accept(value);lastSpoken.current=value.events.length;setPlaying(value.status==='EXECUTING' && localStorage.getItem('driveos-running')!=='false');
         if (value.mode!=='simulation') {setHeard(value.transcript);setVoiceMissionId(value.id);setCaptureStatus('Saved voice mission restored · recording was completed');setPlaybackStatus('Use Speak current result with Timbre to restore audio');}
       }
@@ -126,7 +126,7 @@ export default function MissionDashboard() {
     } catch (failure) { setError(failure.message);setPlaying(false);return false; }
     finally { lock.current=false;setBusy(false);waiters.current.shift()?.(); }
   }
-  async function start(text=goal,demo='none',run=true) {
+  async function start(text=goal,demo='none') {
     if (lock.current) return;
     setPlaying(false);window.speechSynthesis?.cancel();audioPlayer.current?.pause();setAudioUrl('');setHeard('');setCaptureStatus('Not recorded');setVoiceMissionId(null);
     lock.current=true;setBusy(true);setError('');
@@ -136,15 +136,15 @@ export default function MissionDashboard() {
     try {
       const response=await fetch('/api/missions/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(startRequest.current)});
       const value=await response.json();if (!response.ok) throw new Error(typeof value.detail==='string'?value.detail:'Could not start mission.');
-      lastSpoken.current=0;accept(value);setReplayRequest({...startRequest.current});setGuardResult('');startRequest.current=null;setPlaying(run && value.status==='EXECUTING');
+      lastSpoken.current=0;accept(value);setReplayRequest({...startRequest.current});setGuardResult('');startRequest.current=null;setPlaying(value.status==='EXECUTING');
     } catch (failure) { setError(failure.message); }
     finally {lock.current=false;setBusy(false);waiters.current.shift()?.();}
   }
-  async function resetDemo() {
+  function resetDemo() {
     if (lock.current) return;
     setPlaying(false);state.current=null;setMission(null);setGoal(GOAL);setError('');setHeard('');setVoiceMissionId(null);setCaptureStatus('Not recorded');setPlaybackStatus('Waiting for Timbre');setAudioUrl('');setReplayRequest(null);setGuardResult('');voiceRequest.current=null;startRequest.current=null;lastSpoken.current=0;
-    window.speechSynthesis?.cancel();audioPlayer.current?.pause();localStorage.removeItem('driveos-mission');
-    await start(GOAL,'parking-change',false);
+    staleConfirmation.current=null;setScenario('parking-change');recognition.current?.abort();
+    window.speechSynthesis?.cancel();audioPlayer.current?.pause();localStorage.removeItem('driveos-mission');localStorage.setItem('driveos-running','false');
   }
   async function checkGuard(kind) {
     if (lock.current || !state.current) return;
@@ -202,7 +202,7 @@ export default function MissionDashboard() {
       {active && <p className="note" aria-label="Mission identity">Mission ID: {mission.id} · revision {mission.revision}</p>}
       {!active && <><label htmlFor="v2goal">Mission goal</label><textarea id="v2goal" value={goal} onChange={event => {setGoal(event.target.value);startRequest.current=null;}} disabled={busy || recording}/></>}
       <div className="controls"><button className="primary" disabled={busy || recording} onClick={() => start(GOAL,'parking-change')}>Run changing-world demo</button><button className="primary" disabled={busy || !capabilities?.speech_configured || (!recording && budgetBlocked)} onClick={voice}>{recording?'Stop and run voice mission':'Start Gnani voice mission'}</button><button disabled={busy || recording} onClick={resetDemo}>Reset demo</button>{active && <button onClick={() => setPlaying(!playing)} disabled={busy || recording || mission.status!=='EXECUTING'}>{playing?'Pause demo':'Continue mission'}</button>}</div>
-      <details><summary>Judge mode · bounded failure scenarios</summary><div className="controls"><label>Scenario <select value={scenario} disabled={busy || recording} onChange={event=>setScenario(event.target.value)}>{SCENARIOS.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><button disabled={busy || recording} onClick={()=>start(GOAL,scenario)}>Run scenario from clean world</button></div><p className="note">Each run creates an isolated synthetic world. Reset creates a fresh paused mission; Continue starts it. Existing mission records remain saved. Counter-offers pause for approval; failures escalate honestly.</p></details>
+      <details><summary>Judge mode · bounded failure scenarios</summary><div className="controls"><label>Scenario <select value={scenario} disabled={busy || recording} onChange={event=>setScenario(event.target.value)}>{SCENARIOS.map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><button disabled={busy || recording} onClick={()=>start(GOAL,scenario)}>Run scenario from clean world</button></div><p className="note">Each run creates an isolated synthetic world. Reset clears the active console; Run changing-world demo starts a fresh mission. Existing mission records remain saved. Counter-offers pause for approval; failures escalate honestly.</p></details>
       <p className="note">Synthetic external actions · persistent mission state · {capabilities?.speech_configured?'Prisma / Timbre configured':'Configure Gnani for real voice'}{budgetBlocked?' · voice needs at least three remaining requests':''}.</p>
       <details open={!active}><summary>Voice settings · transcript fixtures · demo scope</summary>
       <p className="note">Starting authorizes the requested synthetic contact and calendar actions. The changing-world demo fills the garage after selection. No real calls, purchases or reservations. Closing this console pauses progression; mission state is saved.</p>

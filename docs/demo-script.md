@@ -18,7 +18,7 @@ This is a target edit, not a measured provider latency guarantee. Allow provider
 
 ## Deterministic rehearsal
 
-Click **Reset demo**, then **Continue mission**, or click **Run changing-world demo** directly. This is one-click text rehearsal with browser speech fallback, not Prisma/Timbre validation. The backend starts with an available garage and genuinely changes it after selection. Keep the mission ID, replan explanation and shared-budget chips visible. Open **Mission Record** and download JSON after completion.
+Click **Reset demo** for a blank console, then **Run changing-world demo**. This is one-click text rehearsal with browser speech fallback, not Prisma/Timbre validation. The backend starts with an available garage and genuinely changes it after selection. Keep the mission ID, replan explanation and shared-budget chips visible. Open **Mission Record** and download JSON after completion.
 
 ## Thirty-second engineering follow-up
 
