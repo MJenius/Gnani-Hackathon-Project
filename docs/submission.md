@@ -12,7 +12,7 @@ DriveOS is a voice-first mission execution layer for people whose hands and atte
 
 Microphone → bounded mono WAV → Prisma → normalized transcript → DriveOS Mission Interpreter → deterministic policy → persistent Mission Engine v2 → synthetic external services → same-mission replanning → Timbre → browser playback.
 
-The existing Next.js/FastAPI/SQLite architecture is preserved. MockEvon is retained as the deterministic interpreter and test planner. It matches the documented fixture scope and never represents model inference. Frozen v1 plans, allowlisted actions and the existing v2 engine remain unchanged. Browser progression advances actual persisted backend transitions; there is no prerecorded animation.
+The existing Next.js/FastAPI/SQLite architecture is preserved. MockEvon is retained as the deterministic interpreter and test planner. It extracts required signature slots using a bounded multilingual grammar and never represents model inference. Frozen v1 plans, allowlisted actions and the existing v2 engine remain unchanged. Browser progression advances actual persisted backend transitions; there is no prerecorded animation.
 
 ## Gnani APIs actually used
 

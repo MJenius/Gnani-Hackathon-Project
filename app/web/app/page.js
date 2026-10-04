@@ -4,7 +4,7 @@ import { captureWav } from './capture';
 import MissionDashboard from './mission';
 
 function SpeechConsole() {
-  const signature = "I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes.";
+  const signature = "I'm running late for my meeting. Tell Ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes.";
   const [transcript, setTranscript] = useState(signature);
   const [scenario, setScenario] = useState({ contact_response: 'accepted', parking_full: false, max_detour_minutes: 5 });
   const [mission, setMission] = useState(null);

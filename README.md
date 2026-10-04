@@ -22,7 +22,7 @@ Use **Reset demo** for a blank active console, then **Run changing-world demo** 
 
 The text rehearsal uses labeled browser speech fallback. **Start Gnani voice mission** captures mono WAV, displays the actual Prisma transcript after conservative normalization, executes the same changing-world flow and requests real Timbre start/final audio. It requires configured credentials, sufficient credits and at least three remaining requests. Autoplay may require pressing play.
 
-Open **Voice settings**, select English, Kannada or Hinglish and expand **What to say** for the finite supported fixtures. Names, time and the five-minute limit are preserved; unsupported goals escalate. Completion speech is currently English. The secondary **Personal example** safely escalates pharmacy/stock work outside the frozen tool contract.
+Open **Voice settings**, select English, Kannada or Hinglish and expand **What to say** for supported examples. The interpreter extracts explicit Ananya, 16:30, office parking, fuel and five-minute slots across bounded clause variants and word order. Every required slot must be present once, with no unrecognized instruction; names, time and the five-minute limit are preserved; unsupported goals escalate. Completion speech is currently English. The secondary **Personal example** safely escalates pharmacy/stock work outside the frozen tool contract.
 
 [60-second demo script](docs/demo-script.md) · [Measured submission evidence](docs/submission-evidence.md) · [Final checklist](docs/final-checklist.md) · [Submission copy](docs/submission-copy.md) · [Short promo details](docs/promo-video.md)
 

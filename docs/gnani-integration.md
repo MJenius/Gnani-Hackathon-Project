@@ -10,6 +10,14 @@ Base https://api.vachana.ai; header X-API-Key-ID. POST /stt/v3 uses multipart au
 
 Realtime wss://api.vachana.ai/stt/v3/stream uses upgrade headers x-api-key-id, lang_code, x-sample-rate and x-format. Current docs list 8, 16, 44.1 and 48 kHz. Send signed little-endian mono PCM, not WAV/container bytes. Transcript JSON has type=transcript, text, segment ID and latency; VAD determines boundaries. Realtime is a documented upgrade path, not implemented yet. REST capture proves the first loop without a streaming framework.
 
+## Bounded mission interpretation
+
+Prisma output now feeds slot extraction rather than whole-sentence signature matching. Required values are Ananya, 16:30, parking near the office, fuel requested, and at most five added minutes. Each instruction clause must appear exactly once; clauses may be reordered. Explicit aliases cover 4:30 / 04:30 / four thirty, five / 5 minutes, Kannada spoken numbers, common notification/parking phrases and Hinglish poochho / poocho / pucho, dhundo / dhundho / dhoondo. Punctuation and bounded fillers (um, uh, erm, please, okay, ok) are accepted. The grammar is in app/agent/planner/slots.py; it uses no fuzzy matching or model inference.
+
+Every remaining word must be a supported connector. Unknown names, times, budgets, missing or repeated slots, negated actions and extra instructions return no plan tasks and escalate. The allowed negative phrase inside the fuel clause expresses the five-minute upper bound; it does not negate fuel. Parking without an explicit office destination now escalates. Existing smaller negotiation/parking demos keep their separate finite scope. Frozen schema, policy and execution are unchanged.
+
+Offline checks cover 72 clause orders across three languages, rejected mutations and persistent Hinglish completion. These checks do not verify human Kannada/Hinglish capture or Prisma accuracy; both language tests still require the human microphone and listening path.
+
 ## Timbre v2.5
 
 POST /api/v1/tts/inference with the same speech auth header. JSON text, voice, model=timbre-v2.5, language, speed and audio_config. App requests binary mono 16 kHz 16-bit WAV. Voices: Kaveri English, Saanvi Kannada, Nalini Hindi, Poorvi Hinglish; auto is documented for mixed content. Verified quick-start has no separate beta endpoint. SSE /api/v1/tts/sse and WebSocket /api/v1/tts are future latency improvements.

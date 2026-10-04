@@ -4,7 +4,7 @@ DriveOS is a voice-first mission execution layer for people whose hands and atte
 
 ## Planner and executor boundary
 
-Prisma transcribes bounded mono WAV. Conservative normalization feeds the deterministic DriveOS Mission Interpreter, implemented by `MockEvon`. It matches finite English, Kannada and Hinglish fixtures; it does not perform model inference. The frozen `MissionPlan` v1 schema validates tools, arguments and dependencies. Server-owned policy checks authorization before effects. An optional verified Evon deployment could replace the interpreter through this same contract; no verified endpoint is currently available.
+Prisma transcribes bounded mono WAV. Conservative normalization feeds the deterministic DriveOS Mission Interpreter, implemented by `MockEvon`. It extracts the five required signature slots from bounded English, Kannada and Hinglish clauses, independent of clause order; unknown residual text, missing or duplicate slots escalate; it does not perform model inference. The frozen `MissionPlan` v1 schema validates tools, arguments and dependencies. Server-owned policy checks authorization before effects. An optional verified Evon deployment could replace the interpreter through this same contract; no verified endpoint is currently available.
 
 The console exposes actions and results, never hidden model reasoning. An unsupported pharmacy or inventory request produces an empty plan and safe escalation, with no invented tool capability.
 
@@ -79,4 +79,4 @@ Three evidence classes remain separate: offline engine evaluation; real Gnani ch
 
 ## Known limits
 
-Local unauthenticated demo; SQLite write lock spans planning; finite interpreter fixtures; no background execution; English result speech; unbounded cache retention; synthetic calendar/maps/fuel/parking/contact; no real phone calls, purchases, bookings or live navigation. English human microphone completion and audible Timbre playback were verified on 2026-10-04. Human Kannada/Hinglish, persistent-v2 Hinglish provider verification, noisy-car quality and production driving support remain unverified.
+Local unauthenticated demo; SQLite write lock spans planning; bounded interpreter grammar; no background execution; English result speech; unbounded cache retention; synthetic calendar/maps/fuel/parking/contact; no real phone calls, purchases, bookings or live navigation. English human microphone completion and audible Timbre playback were verified on 2026-10-04. Human Kannada/Hinglish, persistent-v2 Hinglish provider verification, noisy-car quality and production driving support remain unverified.

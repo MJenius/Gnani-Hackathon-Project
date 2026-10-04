@@ -103,29 +103,25 @@ class MockEvon(EvonClient):
     def plan_mission(self, request):
         from app.agent.planner.contract import MissionPlan
         from app.speech.normalize import normalize, fixture_key
-        from pathlib import Path
+        from app.agent.planner.slots import signature_slots
         text=normalize(request['mission']).lower().rstrip('.!?')
-        fixtures=json.loads((Path(__file__).resolve().parents[2]/'evaluation/fixtures/voice_missions.json').read_text(encoding='utf-8'))
-        signature={"i'm running late for my meeting. tell ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes","i'm running late for my meeting. tell ananya, ask if 4:30 works, find parking, and get fuel if it doesn't add more than five minutes",
-                   "i'm running 25 minutes late. tell ananya, ask if 4:30 works, find parking near her office, and get fuel if it doesn't add more than five minutes"}
-        if any(item['signature'] and fixture_key(item['text'])==fixture_key(text) for item in fixtures):
-            signature.add(text)
         negotiation={"i'm 20 minutes late. tell ananya and ask if 4:30 works",
                      'ನಾನು ಇಪ್ಪತ್ತು ನಿಮಿಷ ತಡವಾಗುತ್ತೇನೆ. ಅನನ್ಯ ಅವರಿಗೆ ತಿಳಿಸಿ ಮತ್ತು ನಾಲ್ಕೂವರೆ ಗಂಟೆಗೆ ಭೇಟಿಯಾಗಬಹುದೇ ಎಂದು ಕೇಳಿ'}
         parking={"find parking near the office, but don't add more than 5 minutes"}
         tasks=[]
         def add(action,arguments,depends_on=None):
             tasks.append({'id':'t'+str(len(tasks)+1),'action':action,'arguments':arguments,'depends_on':depends_on or []})
-        supported_signature=fixture_key(text) in {fixture_key(value) for value in signature}
+        slots=signature_slots(text)
+        supported_signature=slots is not None
         supported_negotiation=fixture_key(text) in {fixture_key(value) for value in negotiation}
         supported_parking=fixture_key(text) in {fixture_key(value) for value in parking}
         if supported_signature or supported_negotiation:
-            add('contact.negotiate',{'contact':'Ananya','delay_minutes':20 if supported_negotiation else request['context']['eta_delay_minutes'],'proposed_time':'16:30'})
+            add('contact.negotiate',{'contact':slots['contact'] if slots else 'Ananya','delay_minutes':20 if supported_negotiation else request['context']['eta_delay_minutes'],'proposed_time':slots['meeting_time'] if slots else '16:30'})
             add('calendar.reschedule',{'meeting_id':'demo-meeting','proposed_time':'16:30'},['t1'])
         if supported_signature or supported_parking:
-            add('parking.select',{'destination':'office','max_detour_minutes':5})
+            add('parking.select',{'destination':'office','max_detour_minutes':slots['max_detour'] if slots else 5})
         if supported_signature:
-            add('fuel.select',{'destination':'office','max_detour_minutes':5},['t3'])
+            add('fuel.select',{'destination':'office','max_detour_minutes':slots['max_detour']},['t3'])
         return MissionPlan(version='1',goal='Handle the synthetic mission' if tasks else 'Unsupported demo mission',tasks=tasks,needs_confirmation=False)
 
 def mission_planner(mode='simulation'):
