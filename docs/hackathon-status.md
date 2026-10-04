@@ -1,21 +1,31 @@
-# Hackathon validation — 2026-10-03
+# Final hackathon validation — 2026-10-04
 
-Submission update: the final runtime uses real Prisma/Timbre with the DriveOS Mission Interpreter (retained deterministic MockEvon), policy and persistent v2. Evon is non-blocking and excluded from the final runtime; inference remains unavailable/unverified. Current checks: 53 tests pass, 21/21 offline expected outcomes, production build passes and changing-world browser execution completes with East lot, fuel and five shared detour minutes. See [measured snapshot](evaluation-evidence.json) and [submission brief](submission.md). Historical provider evidence below remains distinct from current offline verification. Human completion/playback and real Hinglish persistent-v2 speech remain unverified; one local request remains and no new provider calls were made.
+An English human microphone run was manually verified end-to-end on 2026-10-04 using real Prisma transcription, persistent Mission Engine v2 execution, one successful same-mission replan and real Timbre playback confirmed audible by the human. Kannada/Hinglish human runs, real persistent-v2 Hinglish, noisy-car performance and hosted Evon remain unverified.
 
-The primary product is persistent Mission Engine v2, with the frozen v1 planner contract unchanged. Microphone WAV capture now connects to Prisma, conservative transcript normalization, frozen-plan/schema validation, deterministic policy, synthetic mission execution and Timbre playback. The older one-notification endpoints remain compatible.
+## Human English microphone validation — VERIFIED (2026-10-04)
 
-Verified real provider evidence: English and Kannada synthetic Timbre input → real Prisma → MockEvon → same-ID changing-world v2 → real Timbre acknowledgement and completion audio. Both selected East lot and fuel within five total detour minutes. English Prisma produced `04:30`; Kannada produced `5` in place of the word five. Finite, semantically equivalent fixtures were added; changed name/time/budget requests still escalate. Results and input WAVs are ignored under `data/voice-v2-*`. These runs do not establish actual human microphone/noisy-car accuracy, speech pronunciation, or Evon multilingual planning.
+Evidence source: the human's report from the actual local browser application; not an automated microphone simulation. Input: human microphone; language: English; STT: real Prisma; interpretation: deterministic DriveOS Mission Interpreter; execution: persistent Mission Engine v2; TTS: real Timbre.
 
-Offline validation: 52 unit tests, mission evaluation runner, same-ID changing-world runner and production frontend build pass. Browser signature demo completed with East lot, fuel, 4:30 simulated arrival and a visible replan. A real API process restart preserved an executing mission's exact state and resumed it to completion. Secret scan checked working source, Git index, Git history and frontend bundles without finding configured credentials or token patterns. MockEvon tests are offline and require no API credits.
+The human confirmed completed recording, a usable transcript preserving Ananya, 04:30, parking near the office and the maximum five added minutes semantically, a created persistent mission reaching COMPLETED, and one successful replan after the original parking candidate became unavailable. East lot and the route fuel stop were selected within five total added minutes; arrival was 4:30 PM **simulated**. Timbre playback completed and the human confirmed it was audible. Exact wording or punctuation preservation, broad speech accuracy and noisy-car quality are not claimed.
 
-The console labels real Prisma/Timbre separately from MockEvon and browser-speech simulation. Evon is unavailable without backend configuration; failures never substitute MockEvon. Successful speech is cached by mission/revision; playback retries reuse it. Speech errors leave committed mission work intact. All calls, calendar actions, parking and route facts remain synthetic. No production telephony, booking, purchase, navigation or driving assistance.
+No raw transcript, recording, personal details or new screenshot is included. The earlier escalated attempt remains historical evidence and is not relabelled successful. Offline fixture checks, historical synthetic-input provider tests and this human-confirmed run remain separate evidence classes.
 
-Personal/work/delivery request fixtures run through the same engine but safely escalate: their pharmacy/inventory/receiver tools cannot be represented by the frozen v1 contract. Implementing their requested effects requires a separately reviewed contract extension. They are not advertised as completed external actions.
+## Engineering — VERIFIED
 
-Evon free GPU investigation is separate. An authenticated Kaggle dual-T4 notebook was started with the existing community GGUF gates. The first build encountered a missing CMake CUDA driver target; the mounted NVIDIA library path resolved configuration and compilation started. Model loading, English/Kannada output and repeated expected-plan gates remain unverified until the notebook reports success. No tunnel or endpoint is exposed.
+60 tests, 27/27 offline expected outcomes, 13/13 chaos checks, API process restart recovery, production build and secret scan. Mission Engine v2 preserves mission identity, completed effects and histories; replay protection, revisions, confirmation gating, failure recovery and adversarial presets are verified under tested synthetic conditions.
 
-Local limitations: unauthenticated backend, synthetic clock driven by the open console, finite fixture planner, transcripts/output audio stored locally without automatic expiry, no provider reconciliation. End-to-end human microphone mission completion/listening QA and Evon remain explicit verification gates.
+## Provider observations — separate evidence
 
-The first human microphone attempt was blocked before Prisma by the local dev allowance reaching 40/40 requests. This is not a provider credit-balance reading. The console now shows the allowance and disables new recording below the calls needed for a mission; recordings remain in browser memory for manual retry. Raising a cap requires checking free provider credits under the existing budget policy.
+English/Kannada synthetic-input real Prisma/Timbre v2 runs were observed on 2026-10-03. They do not verify human Kannada speech. The human English browser run above is the later independent microphone/listening observation. MockEvon is deterministic local interpretation, not hosted Evon or real Evon planning. No Evon endpoint was invented or configured.
 
-After the user checked dashboard consumption (5.72 credits across 37 provider requests), the ignored local dev cap was raised from 40 to 43 for one microphone check. Real Prisma correctly transcribed the human English request including “tell Ananya that also” and “find some parking”; MockEvon escalated because this exact variation was absent. The observed phrase is now a supported equivalent fixture and passes offline evaluation. The original escalated mission is preserved; successful end-to-end human mission execution/playback remains unverified. No additional provider calls were made to verify this fixture fix.
+## Synthetic boundary
+
+Phone/contact interaction, calendar, parking/fuel availability, routes/ETA and every external effect remain SIMULATED. No real calls, bookings, purchases or live navigation occur.
+
+## Submission
+
+Descriptions and public-post draft are ready; the 60-second live English demo is ready to record. Record actual microphone/Prisma/Timbre footage, confirm organizer-required hashtags exactly, publish and submit. No organizer requirements are invented. See final-checklist.md, submission-copy.md and demo-script.md.
+
+## Local limitations
+
+Unauthenticated local backend, browser-driven progression, finite fixture interpreter, ignored caches without automatic expiry and no real external-provider reconciliation. Credits and local request counts are mutable; inspect the provider dashboard and /health before another run. Earlier local allowance blocks and the escalated English variation are historical failures, superseded only for the later successful English run.

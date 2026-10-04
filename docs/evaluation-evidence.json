@@ -2,8 +2,39 @@
   "planner": "DriveOS Mission Interpreter (MockEvon; deterministic, no inference)",
   "providers_called": false,
   "human_microphone_validation": {
-    "status": "not_verified",
-    "scope": "No measured human end-to-end completion/playback gate in this offline runner"
+    "status": "VERIFIED",
+    "date": "2026-10-04",
+    "language": "English",
+    "input": "human microphone",
+    "evidence_source": "human report from actual local browser run",
+    "stt": "real Prisma",
+    "constraints_semantically_preserved": [
+      "requested contact",
+      "04:30 meeting time",
+      "parking near office",
+      "maximum five added minutes"
+    ],
+    "exact_wording_punctuation_preservation_claimed": false,
+    "mission": "persistent Mission Engine v2",
+    "final_status": "COMPLETED",
+    "successful_replans": 1,
+    "parking": "East lot",
+    "fuel": "route fuel stop within shared five-minute limit",
+    "added_minutes": 5,
+    "eta": "16:30",
+    "eta_simulated": true,
+    "tts": "real Timbre",
+    "playback_completed": true,
+    "human_confirmed_audible": true,
+    "recording_or_raw_transcript_committed": false,
+    "unverified": [
+      "hosted Evon inference",
+      "real Evon planning",
+      "human Kannada",
+      "human Hinglish",
+      "real persistent-v2 Hinglish",
+      "noisy-car performance"
+    ]
   },
   "multilingual_fixture_validity": {
     "english": {
@@ -696,8 +727,26 @@
     "secret_scan": "passed",
     "browser_clean_demo_runs": 3,
     "local_result_capture": "browser-only; no human result fabricated",
-    "human_microphone": "UNVERIFIED",
-    "human_listening": "UNVERIFIED",
-    "new_provider_requests": 0
+    "human_microphone": "VERIFIED for English; human-confirmed 2026-10-04",
+    "human_listening": "VERIFIED for English; confirmed audible by human",
+    "new_provider_requests": 0,
+    "provider_request_scope": "Documentation finalization and offline checks only; successful human English run recorded separately"
+  },
+  "providers_called_scope": "Offline engine runner only; historical provider tests and human microphone validation are separate sections",
+  "submission_finalization": {
+    "date": "2026-10-04",
+    "changes": "documentation only",
+    "tests_passed": 60,
+    "evaluation_expected_outcomes": "27/27",
+    "chaos": "13/13",
+    "api_restart_recovery": "passed",
+    "mission_demo": "COMPLETED; same mission; one replan; East lot; five added minutes; synthetic ETA 16:30",
+    "frontend_build": "passed",
+    "secret_scan": {
+      "source_files": 85,
+      "bundle_files": 11,
+      "findings": 0
+    },
+    "provider_requests_made_by_agent": 0
   }
 }

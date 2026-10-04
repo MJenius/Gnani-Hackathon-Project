@@ -4,7 +4,7 @@
 
 Foundation, Mission Engine v1 and persistent v2 implemented (see mission-engine-v2.md): strict fixture planner (MockEvon), dependency validation, bounded synthetic contact negotiation, acceptance-gated calendar, parking alternative/replan, shared parking/fuel detour budget, SQLite atomic effects and request replay, console conditions/task outcomes. Unsupported requests escalate. No real calls, bookings, purchases or arbitrary-language planning are claimed.
 
-V2 adds mutable world events, persisted waiting/resume, exact counter-offer approval, synthetic ETA, requirement changes and staged CallPilot. Real Prisma/Timbre now wraps v2; English/Kannada synthetic-input signature runs passed. Finite multilingual/transcription fixtures and machine-readable mission evaluation exist. Personal/work/delivery fixtures escalate under the unchanged contract. Next: actual human microphone/listening QA, noisy recordings, reviewed broader contract, authentication, external-provider reconciliation and production retention.
+V2 adds mutable world events, persisted waiting/resume, exact counter-offer approval, synthetic ETA, requirement changes and staged CallPilot. Real Prisma/Timbre now wraps v2; English/Kannada synthetic-input signature runs passed. Finite multilingual/transcription fixtures and machine-readable mission evaluation exist. Personal/work/delivery fixtures escalate under the unchanged contract. English human microphone completion and audible Timbre playback are verified on 2026-10-04. Next: optional Kannada/Hinglish human QA, noisy recordings, reviewed broader contract, authentication, external-provider reconciliation and production retention.
 
 ## Track B — Evon verification
 

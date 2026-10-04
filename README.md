@@ -71,7 +71,7 @@ Measured refinement results on **2026-10-04**: **60 passing tests**, **27/27 off
 
 Offline latency and denominators are in [submission evidence](docs/submission-evidence.md) and the [machine-readable snapshot](docs/evaluation-evidence.json). Offline engine checks, real provider observations and human microphone validation are kept separate.
 
-Historical real Prisma/Timbre checks completed English and Kannada v2 missions with synthetic input audio. No fresh provider calls were made in this pass: the configured local allowance has one request remaining. Human microphone completion/listening and real Hinglish v2 remain unverified.
+Historical real Prisma/Timbre checks completed English and Kannada v2 missions with synthetic input audio. An English human microphone run was manually verified end-to-end on 2026-10-04 using real Prisma transcription, persistent Mission Engine v2 execution, one successful same-mission replan and real Timbre playback confirmed audible by the human. Kannada/Hinglish human runs, real persistent-v2 Hinglish, noisy-car performance and hosted Evon remain unverified.
 
 ## Known limitations
 
@@ -109,4 +109,14 @@ cd app/web
 npm run build
 ```
 
-`chaos` includes the automatic API restart check. Real-provider commands and the remaining microphone gate are documented in [submission evidence](docs/submission-evidence.md).
+`chaos` includes the automatic API restart check. Real-provider commands and the verified English human run and optional multilingual microphone gates are documented in [submission evidence](docs/submission-evidence.md).
+
+## Final Validation
+
+**VERIFIED:** 60 tests; 27/27 offline outcomes; 13/13 chaos checks; API restart recovery; real Prisma; real Timbre; human English microphone mission; audible English Timbre playback.
+
+**UNVERIFIED:** optional hosted Evon inference and real Evon planning; human Kannada microphone; human Hinglish microphone and real persistent-v2 Hinglish; noisy-car performance.
+
+**SIMULATED:** external calls/contact, calendar, parking, fuel and navigation/ETA; all external effects.
+
+Manually validated English path: human microphone → real Prisma transcription → DriveOS mission interpretation → persistent Mission Engine v2 → autonomous same-mission replan → real Timbre playback. The human confirmed audible output on 2026-10-04. Relevant constraints were preserved semantically, without claiming identical wording or punctuation. See [human validation evidence](docs/submission-evidence.md).

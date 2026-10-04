@@ -1,6 +1,6 @@
 # Submission copy
 
-Claims describe this prototype. No human microphone pass or live external action is implied.
+Claims describe this prototype. One English human microphone mission and audible playback are human-confirmed; all external actions remain synthetic.
 
 ## One sentence
 
@@ -8,15 +8,15 @@ DriveOS turns a supported compound goal into a persistent mission that replans w
 
 ## 50 words
 
-DriveOS turns a supported spoken or typed goal into a persistent mission. Its deterministic interpreter, policy checks and execution engine coordinate synthetic contact, calendar, parking, fuel and ETA tasks, then replan when conditions change. Real Prisma and Timbre integrations are implemented; human microphone completion and listening still require manual validation.
+DriveOS turns a supported goal into a persistent mission, coordinating synthetic contact, calendar, parking, fuel and ETA tasks with replanning. An English human microphone run was verified through real Prisma, persistent execution and audible Timbre playback. Hosted Evon, Kannada/Hinglish human runs and noisy-car performance remain unverified. External effects are simulated.
 
 ## 150 words
 
-DriveOS is a voice-first prototype for executing a compound request while keeping its progress inspectable. A supported English, Kannada or Hinglish fixture becomes a frozen MissionPlan through the deterministic DriveOS Mission Interpreter. Policy checks constrain execution, while Mission Engine v2 persists mission identity, task history and results in SQLite.
+DriveOS is a voice-first prototype that executes a compound request as one persistent mission. Its deterministic DriveOS Mission Interpreter produces a frozen MissionPlan; policy checks constrain actions, while Mission Engine v2 persists identity, task histories and results in SQLite.
 
-The signature demonstration notifies Ananya, updates a meeting time, selects parking, responds when the garage becomes full, checks fuel against a shared five-minute detour limit and calculates a synthetic ETA. Replanning retains completed contact and calendar work. The console exposes progress, explanations, confirmation gates and an exportable Mission Record.
+On October 4, 2026, a human English microphone run was manually verified through real Prisma transcription, persistent execution, one replan and real Timbre playback confirmed audible. Name, meeting time, parking and five-minute constraints were preserved semantically. The garage became unavailable; East lot and a route fuel stop were selected within five added minutes. The mission completed with a simulated 4:30 PM arrival.
 
-Real Prisma transcription and Timbre speech integrations are implemented, with English and Kannada synthetic-input provider observations. External contact, calendar, parking, fuel and maps remain simulated. Hosted Evon is optional and unverified. Human microphone completion, audible playback and real persistent-v2 Hinglish remain unverified. Offline evaluation, chaos checks and API restart recovery provide evidence.
+Contact, calendar, parking, fuel, routes and all external effects remain synthetic. Hosted Evon and real Evon planning are optional and unverified. Human Kannada/Hinglish, real persistent-v2 Hinglish and noisy-car performance remain unverified. Offline fixture outcomes, historical synthetic-input provider observations and human validation are recorded separately, without claiming broad speech accuracy.
 
 ## Technology summary
 
@@ -24,24 +24,32 @@ Python/FastAPI backend; frozen Pydantic MissionPlan; deterministic DriveOS Missi
 
 ## Limitations
 
-Finite supported fixtures rather than open-ended planning. External actions and route facts are synthetic: no real phone calls, reservations, purchases or live navigation. English summaries; local unauthenticated API; browser-driven progression; local caches without expiry. Historical provider tests use synthetic input audio. Human microphone completion, listening quality, noisy-car use, real persistent-v2 Hinglish and hosted Evon remain unverified. Check provider credits before manual voice validation.
+Finite supported fixtures rather than open-ended planning. External actions and route facts are synthetic: no real phone calls, reservations, purchases or live navigation. English summaries; local unauthenticated API; browser-driven progression; local caches without expiry. Historical provider tests use synthetic input audio. An English human microphone run was manually verified end-to-end on 2026-10-04 using real Prisma transcription, persistent Mission Engine v2 execution, one successful same-mission replan and real Timbre playback confirmed audible by the human. Kannada/Hinglish human runs, real persistent-v2 Hinglish, noisy-car performance and hosted Evon remain unverified. Check provider credits before manual voice validation.
 
-## 60-second narration
+## 60-second narration / primary live capture
 
-**0–10 seconds:** This is DriveOS: one compound goal, carried through a persistent mission. This demonstration uses text and synthetic external services.
+0–5: Product headline: “You drive. It handles everything around the drive.”
 
-**10–22 seconds:** I’m late for a meeting. Tell Ananya, ask about four thirty, find parking, and get fuel only within five added minutes. The interpreter freezes the plan; policy checks bound each action.
+5–15: Actual human voice request; use the displayed English fixture. Do not overdub synthetic input.
 
-**22–38 seconds:** Contact and calendar tasks finish. The selected garage becomes full. DriveOS replans under the same mission ID, retains completed work, and selects East lot. Fuel fits the remaining shared detour budget.
+15–23: Actual real Prisma transcript appears. “One voice request. One persistent mission.”
 
-**38–49 seconds:** The console shows completion, a synthetic ETA, and the Mission Record. Saved state survives an API restart; replay guards reject stale commands.
+23–32: Show mission/task graph, synthetic contact acceptance and calendar progress. Keep the synthetic-services label visible.
 
-**49–60 seconds:** Real Prisma and Timbre integrations are implemented. Human microphone completion and listening still need validation. Hosted Evon is optional and unverified. This is an inspectable execution prototype, with honest boundaries.
+32–40: Show the selected garage becoming unavailable. “The world changes.”
+
+40–48: REPLANNING → East lot → fuel within the shared five-minute budget. “DriveOS replans.”
+
+48–55: Simulated ETA 4:30 PM and COMPLETED. “The mission completes.”
+
+55–60: Let the actual final Timbre output play; show Mission Record. Do not speak over it.
+
+Timing is a target edit, not a latency guarantee. Preserve actual transcript, transitions and audio; cut pauses if needed. English live voice was human-validated, but this final 60-second recording still needs to be made. Text rehearsal/browser speech must never stand in for real Prisma or Timbre.
 
 ## Draft public post
 
-DriveOS keeps a supported compound goal moving when the world changes. Watch the same mission replan from a full garage to East lot without repeating completed contact/calendar work. The demo's external services are synthetic; Prisma/Timbre integrations are real, and human voice validation remains pending.
+DriveOS keeps a supported compound goal moving when the world changes. Watch the same mission replan from a full garage to East lot without repeating completed contact/calendar work. The demo's external services are synthetic; Prisma/Timbre integrations are real, and an English human microphone mission and audible Timbre playback have been manually verified; Kannada/Hinglish human runs and hosted Evon remain unverified.
 
 Repository: https://github.com/MJenius/Gnani-Hackathon-Project
 
-Draft tags: #DriveOS #GnaniAI #VoiceAI #Hackathon (organizer requirements unverified).
+Organizer hashtags: use exactly the competition-required tags. No authoritative tag list has been supplied; none is invented here.

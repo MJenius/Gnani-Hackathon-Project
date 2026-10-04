@@ -1,8 +1,8 @@
 # Phase 0 checkpoint — 2026-10-03
 
-Current decision: Phase 0 is complete enough to proceed. Mission Engine v2 is implemented; only independent Evon GPU verification continues. The observations below preserve the distinction between verified speech and unverified model/microphone inference.
+Current decision: Phase 0 was accepted for development and Mission Engine v2 is implemented. Hosted Evon and real Evon planning remain optional/unverified; no ongoing inference run or endpoint is claimed. The original observations below are historical; final English human validation is documented in hackathon-status.md.
 
-Current product validation is in [hackathon-status.md](hackathon-status.md): real English/Kannada synthetic-input Prisma → persistent v2 → Timbre now passes; human microphone and Evon remain separate gates. The sections below preserve the original Phase 0 observations.
+Current product validation is in [hackathon-status.md](hackathon-status.md): real English/Kannada synthetic-input Prisma → persistent v2 → Timbre now passes; English human microphone completion/audible playback are now verified on 2026-10-04; optional multilingual human runs and Evon remain separate gates. The sections below preserve the original Phase 0 observations.
 
 Completed: master context/specifications reviewed; speech key and HF token stored in ignored local `.env`; Git/Docker secret exclusions; official speech API contracts; real English Prisma/Timbre round trip; real Kannada and Kannada–English round trips; separate simulation/speech-test/live modes; server-side adapters, metadata logging, local call caps and offline tests.
 
@@ -25,4 +25,4 @@ Independent verification stays open for real GGUF English/Kannada output, expect
 
 Phase 1 product development has begun independently. Mission Engine v1 + MockEvon implements the documented signature fixture with dependency execution, acceptance-gated calendar, alternate parking, and constrained fuel selection. Rejection/no-answer escalate contact/calendar while independent route tasks finish. Tests validate replay, rollback and policy. This is deterministic simulation, not Evon quality evidence. Speech fixtures can now be captured explicitly and replayed offline; earlier recordings are unavailable and slots remain empty.
 
-User decision: Phase 0 is complete enough to proceed with Mission Engine v2. No additional Phase 0 infrastructure is required beyond independent Evon GPU smoke. Historical unverified-inference/microphone limitations above remain accurate; they do not block mission development.
+User decision: Phase 0 is complete enough to proceed with Mission Engine v2. No additional Phase 0 infrastructure is required beyond independent Evon GPU smoke. Historical inference/microphone limitations describe the earlier Phase 0 only; English microphone completion/listening was later verified; they do not block mission development.

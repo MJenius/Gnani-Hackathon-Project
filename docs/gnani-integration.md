@@ -2,7 +2,7 @@
 
 Verified 2026-10-03 against the official [documentation index](https://docs.gnani.ai/llms.txt), [Prisma REST](https://docs.gnani.ai/api/STT/speech-to-text), [Prisma realtime](https://docs.gnani.ai/api/STT/stt-websocket), [Timbre REST](https://docs.gnani.ai/api/TTS/tts-inference), [voice catalog](https://docs.gnani.ai/api/TTS/available-voices), and [Evon model card](https://huggingface.co/gnani/gnani-evon-v3.3-30B-A3B).
 
-Real Prisma/Timbre have passed synthetic English/Kannada and mixed-language tests. On 2026-10-03, English and Kannada signature audio also completed the persistent v2 changing-world flow with MockEvon and real Timbre start/completion WAVs. Keys remain backend-only and excluded from Git/Docker. This is separate from unverified Evon inference, human microphone capture, pronunciation and noisy-car quality.
+Real Prisma/Timbre have passed synthetic English/Kannada and mixed-language tests. On 2026-10-03, English and Kannada signature audio also completed the persistent v2 changing-world flow with MockEvon and real Timbre start/completion WAVs. Keys remain backend-only and excluded from Git/Docker. A later English human microphone → real Prisma → persistent v2/replan → real Timbre run was human-verified on 2026-10-04, with audible playback confirmed. Kannada/Hinglish human capture, pronunciation benchmarks, noisy-car quality and Evon inference remain unverified.
 
 ## Prisma v2.5
 

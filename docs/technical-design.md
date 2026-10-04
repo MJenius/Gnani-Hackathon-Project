@@ -79,4 +79,4 @@ Three evidence classes remain separate: offline engine evaluation; real Gnani ch
 
 ## Known limits
 
-Local unauthenticated demo; SQLite write lock spans planning; finite interpreter fixtures; no background execution; English result speech; unbounded cache retention; synthetic calendar/maps/fuel/parking/contact; no real phone calls, purchases, bookings or live navigation. Human microphone completion/listening, persistent-v2 Hinglish provider verification, noisy-car quality and production driving support remain unverified.
+Local unauthenticated demo; SQLite write lock spans planning; finite interpreter fixtures; no background execution; English result speech; unbounded cache retention; synthetic calendar/maps/fuel/parking/contact; no real phone calls, purchases, bookings or live navigation. English human microphone completion and audible Timbre playback were verified on 2026-10-04. Human Kannada/Hinglish, persistent-v2 Hinglish provider verification, noisy-car quality and production driving support remain unverified.

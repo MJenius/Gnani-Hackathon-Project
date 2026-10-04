@@ -27,7 +27,7 @@ The restart check recorded one call, one actual notification, one calendar updat
 
 Previously recorded on 2026-10-03: real Prisma and Timbre completed English and Kannada persistent-v2 missions using synthetic Timbre input audio. Both returned start/final speech and completed with five detour minutes. Loop latencies were 15,918 ms and 15,990 ms, each including a ten-second cooldown. These are historical provider observations, preserved in `evaluation-evidence.json`, not newly repeated in this pass.
 
-No new provider requests were made during refinement. The configured local allowance has one remaining request; a fresh full voice mission needs at least three. Provider credits have not been reverified. Real persistent-v2 Hinglish remains unverified. Reproduce provider checks only after checking credits and the local allowance:
+No provider requests were made by the automated refinement. The later human English microphone run is recorded separately below. A fresh full voice mission needs at least three local requests; check current /health counts and provider credits before another run. Real persistent-v2 Hinglish remains unverified. Reproduce provider checks only after checking credits and the local allowance:
 
 ```powershell
 python -m app.evaluation.runners.voice_demo --real --case english --reuse-audio
@@ -37,9 +37,13 @@ python -m app.evaluation.runners.voice_demo --real --case hinglish
 
 Reuse requires existing ignored synthetic WAVs. These checks do not test a human microphone.
 
-## Human microphone validation
+## Human English microphone validation — VERIFIED (2026-10-04)
 
-End-to-end microphone completion, listening quality and noisy-car performance remain unverified. An earlier human transcript was observed but the mission escalated; accepting that transcript offline does not retroactively establish live completion. The manual gate is: record each displayed English/Kannada/Hinglish fixture, inspect actual Prisma text and constraints, complete the same mission, and listen to the final Timbre result. Record the outcome honestly, including failures.
+Evidence source: the human's report from the actual local browser application; not an automated microphone simulation. Input: human microphone; language: English; STT: real Prisma; interpretation: deterministic DriveOS Mission Interpreter; execution: persistent Mission Engine v2; TTS: real Timbre.
+
+The human confirmed completed recording, a usable transcript preserving Ananya, 04:30, parking near the office and the maximum five added minutes semantically, a created persistent mission reaching COMPLETED, and one successful replan after the original parking candidate became unavailable. East lot and the route fuel stop were selected within five total added minutes; arrival was 4:30 PM **simulated**. Timbre playback completed and the human confirmed it was audible. Exact wording or punctuation preservation, broad speech accuracy and noisy-car quality are not claimed.
+
+No raw transcript, recording, personal details or new screenshot is included. The earlier escalated attempt remains historical evidence and is not relabelled successful. Offline fixture checks, historical synthetic-input provider tests and this human-confirmed run remain separate evidence classes.
 
 ## Build, secrets and browser
 
@@ -53,4 +57,8 @@ Hosted inference remains unavailable/unverified: no verified endpoint/base URL. 
 
 ## Final readiness pass (2026-10-04)
 
-All six requested checks passed: 60 unit tests, evaluation 27/27 expected outcomes, chaos 13/13 including API restart, mission_demo COMPLETED under the same ID with East lot / five added minutes / 16:30 synthetic ETA, production build, and secret scan (83 source files, 11 bundle files, zero findings; final staged scan also passed across 85 source and 11 bundle files). Three distinct browser demo runs completed from clean worlds; Reset creates a fresh paused mission. The validation panel stores human-reported checkboxes and notes locally, with no audio/transcript copies or database migration. No new provider requests, microphone capture or human-pass records were created. See [final checklist](final-checklist.md) and [submission copy](submission-copy.md).
+All six requested checks passed: 60 unit tests, evaluation 27/27 expected outcomes, chaos 13/13 including API restart, mission_demo COMPLETED under the same ID with East lot / five added minutes / 16:30 synthetic ETA, production build, and secret scan (83 source files, 11 bundle files, zero findings; final staged scan also passed across 85 source and 11 bundle files). Three distinct browser demo runs completed from clean worlds; Reset creates a fresh paused mission. The validation panel stores human-reported checkboxes and notes locally, with no audio/transcript copies or database migration. That earlier automated readiness pass created no provider requests, microphone capture or human-pass records; the later human-confirmed English validation above supersedes its pending English status. See [final checklist](final-checklist.md) and [submission copy](submission-copy.md).
+
+## Submission finalization checks — 2026-10-04
+
+After recording the human-confirmed English result, all requested commands were rerun: unittest 60/60; persistent evaluation 27/27 expected outcomes; chaos 13/13 including real API restart; mission_demo COMPLETED with same mission, one replan, East lot and five added minutes; production build passed; secret scan 85 source files and 11 frontend bundle files, zero findings. Documentation-only changes; no new provider calls. No .env, recordings, databases, temporary outputs or personal transcript/audio artifacts are tracked. Ignored local evidence is preserved. The 50-/150-word descriptions have exact word counts.

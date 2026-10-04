@@ -39,7 +39,7 @@ CallPilot calls/contact responses, calendar contents and changes, parking availa
 
 The 2026-10-04 refinement passes 60 tests, 27/27 offline mission outcomes, 13/13 supported completion runs and 13/13 chaos checks. The automatic API restart check restores exact committed state across two processes and completes the same mission without repeating contact/calendar effects. Production build and secret scan pass. See [submission evidence](submission-evidence.md) for denominators, latency scope, reproduction commands and manual gates; [machine-readable evidence](evaluation-evidence.json) keeps offline and provider measurements separate.
 
-Real English/Kannada Prisma/Timbre synthetic-audio v2 results are historical observations from 2026-10-03. No new provider requests were spent in this refinement. Human microphone completion/listening and persistent-v2 Hinglish speech remain unverified. One request remains in the local allowance, below the three needed for a new full voice run; provider credits have not been reverified.
+Real English/Kannada synthetic-input provider observations are historical from 2026-10-03. The later English human microphone run on 2026-10-04 was manually verified through real Prisma, persistent v2 execution, one replan and real Timbre playback confirmed audible. Human Kannada/Hinglish, real persistent-v2 Hinglish and noisy-car performance remain unverified. Check mutable provider credits and local allowance before another run.
 
 ## Safety model
 
@@ -51,7 +51,7 @@ Evon was investigated as the reasoning model but is not part of the final runtim
 
 ## Limitations
 
-Finite English/Kannada/Hinglish fixtures, English completion summaries, local unauthenticated backend, browser-driven synthetic clock and local caches without automatic expiry. No production tool integration or provider reconciliation. External actions and facts are simulated. Human capture-to-completion/listening, real Hinglish v2 speech and noisy-car performance remain gates, not claimed successes.
+Finite English/Kannada/Hinglish fixtures, English completion summaries, local unauthenticated backend, browser-driven synthetic clock and local caches without automatic expiry. No production tool integration or provider reconciliation. External actions and facts are simulated. English capture-to-completion and audible Timbre playback are human-verified. Human Kannada/Hinglish, real Hinglish v2 speech and noisy-car performance remain unverified.
 
 ## Run locally
 
@@ -75,10 +75,4 @@ Open http://127.0.0.1:3000. For speech, copy `.env.example` to ignored `.env`, s
 
 ## 60-second demo script
 
-- **0–8 seconds:** “DriveOS turns one voice request into a mission for someone whose hands and attention are occupied. Prisma hears; the mission engine executes and replans; Timbre speaks.”
-- **8–23 seconds:** Select English and start real Gnani capture if the human gate and credit allowance have been checked. Say the exact compound request and stop. Otherwise click Run changing-world demo and explicitly say this is the offline simulation.
-- **23–38 seconds:** Point to the mission ID, call state and tasks. “The synthetic contact accepts 4:30. Calendar and route tasks are tracked under this same mission.”
-- **38–48 seconds:** Show the world change/replan and East lot. “The garage becomes unavailable. DriveOS keeps completed work and fits parking plus fuel inside five added minutes.”
-- **48–60 seconds:** Show 4:30 ETA and completion; let Timbre play in real mode. “Prisma and Timbre are real. Calls, calendar and route services are simulated. The interpreter is deterministic; Evon inference and successful human completion are not claimed.”
-
-Timing is a presentation target, not an end-to-end latency guarantee. If provider or playback fails, show the persisted mission and saved result; do not describe offline/browser speech as live Gnani output.
+Use [the final live-English recording script](demo-script.md): headline 0–5; actual human voice 5–15; real Prisma transcript 15–23; synthetic contact/calendar progress 23–32; garage unavailable 32–40; same-mission replan/East lot/fuel budget 40–48; simulated ETA/completion 48–55; actual Timbre final result/Mission Record 55–60. READY TO RECORD. Preserve real footage/audio; browser speech never substitutes for real Prisma/Timbre. Timing is a presentation target, not a latency guarantee.
