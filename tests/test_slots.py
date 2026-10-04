@@ -71,6 +71,13 @@ class SlotTests(unittest.TestCase):
             self.assertIsNotNone(signature_slots(text.replace('430', time)))
         for changed in ['430 मिनट', '1430', '4300', '530', '430 या 530']:
             self.assertIsNone(signature_slots(text.replace('430', changed)))
+        split_detour = text.replace('डिटूर ना हो', 'डिट और नहीं होता')
+        self.assertIsNotNone(signature_slots(split_detour))
+        for old, new in [('5 मिनट', '10 मिनट'), ('नहीं होता', 'होता'),
+                         ('अनन्या', 'अनिता'), ('430', '530'),
+                         ('डिट और', 'डिट और कॉफी खरीदो और')]:
+            self.assertIsNone(signature_slots(split_detour.replace(old, new)))
+        self.assertIsNone(signature_slots(split_detour + ' और कॉफी खरीदो'))
 
     def test_supported_hinglish_persistent_completion_and_rejection(self):
         text = 'Meeting ke liye late ho raha hoon, Ananya ko batao, 4:30 poochho, office ke paas parking dhundo, aur fuel agar 5 minutes se zyada detour na ho.'

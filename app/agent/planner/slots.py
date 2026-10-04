@@ -7,7 +7,7 @@ CLAUSES = {
     'contact': r"(?:tell|notify) ananya(?: that)?|ananya ko (?:batao|bata do|bata dena|batana)|ಅನನ್ಯ(?:ಾ)? (?:ಅವರಿಗೆ|ಗೆ) (?:ತಿಳಿಸಿ|ಹೇಳಿ)|अनन्या को (?:बताओ|बता दो|बता देना)",
     'meeting_time': r"ask (?:if|whether) 16:30 (?:works|is okay)|16:30 (?:works )?(?:poochho|poocho|pucho|pooch lo)|16:30(?:ಗೆ)? (?:ಆಗುತ್ತದೆಯೇ|ಆಗುತ್ತಾ|ಭೇಟಿಯಾಗಬಹುದೇ)(?: ಎಂದು)? ಕೇಳಿ|(?:16:30(?: वर्क्स)?|430 वर्क्स) (?:पूछो|पूछ लो)",
     'parking': r"(?:find|look for) (?:some )?parking near (?:her|the) office|office ke (?:paas|pass) parking (?:dhundo|dhundho|dhoondo)|(?:ಅವರ )?(?:ಕಚೇರಿ|ಆಫೀಸ್) (?:ಬಳಿ|ಹತ್ತಿರ) (?:ಪಾರ್ಕಿಂಗ್|parking) (?:ಹುಡುಕಿ|ನೋಡಿ)|ऑफिस के पास पार्किंग (?:ढूंढो|ढूँढो)",
-    'fuel': r"(?:get|add) fuel (?:if it (?:doesn't|does not) add more than|only if it adds at most) 5 minutes|fuel (?:agar|tabhi agar) 5 (?:minutes|min) se (?:zyada|jyada) detour (?:nahi hota|na ho|nahi ho)|5 (?:ನಿಮಿಷಕ್ಕಿಂತ|ನಿಮಿಷಗಳಿಗಿಂತ) ಹೆಚ್ಚು (?:ಆಗದಿದ್ದರೆ|ತಡವಾಗದಿದ್ದರೆ) (?:ಇಂಧನ|ಪೆಟ್ರೋಲ್) (?:ತುಂಬಿಸಿ|ಹಾಕಿಸಿ)|फ्यूल अगर 5 मिनट से (?:ज्यादा|ज़्यादा) (?:डिटोर|डिटूर) (?:नहीं हो|ना हो|नहीं होता)",
+    'fuel': r"(?:get|add) fuel (?:if it (?:doesn't|does not) add more than|only if it adds at most) 5 minutes|fuel (?:agar|tabhi agar) 5 (?:minutes|min) se (?:zyada|jyada) detour (?:nahi hota|na ho|nahi ho)|5 (?:ನಿಮಿಷಕ್ಕಿಂತ|ನಿಮಿಷಗಳಿಗಿಂತ) ಹೆಚ್ಚು (?:ಆಗದಿದ್ದರೆ|ತಡವಾಗದಿದ್ದರೆ) (?:ಇಂಧನ|ಪೆಟ್ರೋಲ್) (?:ತುಂಬಿಸಿ|ಹಾಕಿಸಿ)|फ्यूल अगर 5 मिनट से (?:ज्यादा|ज़्यादा) (?:डिटोर|डिटूर|डिट और) (?:नहीं हो|ना हो|नहीं होता)",
 }
 LATE = r"(?:i'm|i am) (?:running )?(?:25 minutes )?late(?: for my meeting)?|meeting ke liye late ho raha (?:hoon|hu)|ನಾನು (?:ಸಭೆಗೆ|ಮೀಟಿಂಗ್ ಗೆ) ತಡವಾಗುತ್ತಿದ್ದೇನೆ|मीटिंग के लिए लेट हो रहा (?:हूँ|हूं)"
 
