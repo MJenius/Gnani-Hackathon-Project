@@ -16,7 +16,9 @@ Prisma output now feeds slot extraction rather than whole-sentence signature mat
 
 Every remaining word must be a supported connector. Unknown names, times, budgets, missing or repeated slots, negated actions and extra instructions return no plan tasks and escalate. The allowed negative phrase inside the fuel clause expresses the five-minute upper bound; it does not negate fuel. Parking without an explicit office destination now escalates. Existing smaller negotiation/parking demos keep their separate finite scope. Frozen schema, policy and execution are unchanged.
 
-Offline checks cover 72 clause orders across three languages, rejected mutations and persistent Hinglish completion. These checks do not verify human Kannada/Hinglish capture or Prisma accuracy; both language tests still require the human microphone and listening path.
+Hinglish clauses also support explicit Devanagari spellings returned by Prisma, including अनन्या, वर्क्स पूछो, ऑफिस के पास पार्किंग ढूंढो and the five-minute fuel condition. The compact `430` form is accepted only within the explicit `430 वर्क्स पूछो` / `पूछ लो` time clause, never as a general number replacement. Other numbers and residual instructions still reject.
+
+Offline checks cover 96 clause orders across English, Kannada and both Hinglish scripts, rejected mutations and persistent Hinglish completion. These checks do not verify human Kannada/Hinglish completion or audible playback; both language tests still require the human microphone and listening path.
 
 ## Timbre v2.5
 

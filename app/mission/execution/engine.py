@@ -50,7 +50,7 @@ def execute(request):
             run_graph(db,mission,plan,request,event)
         elif inputs is None:
             mission['status'] = 'ESCALATED'
-            mission['spoken_response'] = 'This request is outside the supported demo fixtures. Try the delay notification or the signature meeting mission.'
+            mission['spoken_response'] = 'Required mission slots are missing, ambiguous or outside the supported scope. Try the delay notification or the signature meeting mission.'
             event('ESCALATED', 'Mission outside the current demo scope')
         else:
             validate('contact.notify_delay', request['authorized'])

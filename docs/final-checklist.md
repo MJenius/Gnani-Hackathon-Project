@@ -6,7 +6,7 @@ Status meanings: **VERIFIED** = recorded engineering/provider evidence; **UNVERI
 
 | Item | Status | Evidence / remaining action |
 |---|---|---|
-| Unit tests | VERIFIED | 63 passing tests after bounded multilingual slot extraction; includes clause ordering, rejection mutations and persistent Hinglish execution; final commands below |
+| Unit tests | VERIFIED | 64 passing tests after bounded multilingual slot extraction; includes Latin/Devanagari Hinglish, clause ordering, rejection mutations and persistent Hinglish execution; final commands below |
 | Evaluation | VERIFIED | 27/27 expected persistent outcomes; 13/13 supported completion subset |
 | Chaos | VERIFIED | 13/13 including actual two-process restart |
 | Restart recovery | VERIFIED | Same persisted mission restored and completed after API restart |

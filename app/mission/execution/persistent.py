@@ -101,7 +101,7 @@ def pending_confirmation(mission,task,action,arguments,label):
     return bound
 
 def summary(mission):
-    if not mission['tasks']: return 'This request is outside the supported demo fixtures. No external action was taken.'
+    if not mission['tasks']: return 'Required mission slots are missing, ambiguous or outside the supported scope. No external action was taken.'
     world=mission['world'];calendar=task_for(mission,'calendar.reschedule')
     text=['Synthetic mission complete.' if mission['status']=='COMPLETED' else 'Some mission tasks need your attention.']
     if calendar:

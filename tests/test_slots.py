@@ -15,6 +15,8 @@ LANGUAGES = [
      'fuel agar five minutes se zyada detour na ho'],
     ['ಅನನ್ಯ ಅವರಿಗೆ ಹೇಳಿ', 'ನಾಲ್ಕೂವರೆ ಗಂಟೆಗೆ ಆಗುತ್ತದೆಯೇ ಕೇಳಿ', 'ಅವರ ಕಚೇರಿ ಹತ್ತಿರ ಪಾರ್ಕಿಂಗ್ ಹುಡುಕಿ',
      'ಐದು ನಿಮಿಷಕ್ಕಿಂತ ಹೆಚ್ಚು ಆಗದಿದ್ದರೆ ಇಂಧನ ತುಂಬಿಸಿ'],
+    ['अनन्या को बता देना', '430 वर्क्स पूछ लो', 'ऑफिस के पास पार्किंग ढूँढो',
+     'फ्यूल अगर 5 मिनट से ज्यादा डिटूर ना हो'],
 ]
 
 class SlotTests(unittest.TestCase):
@@ -46,6 +48,9 @@ class SlotTests(unittest.TestCase):
              ('bata do','mat batao'), ('fuel agar','fuel mat lo agar'), ('office','ghar')],
             [('ಅನನ್ಯ','ಅನಿತಾ'), ('ನಾಲ್ಕೂವರೆ','ಐದೂವರೆ'), ('ಐದು','ಹತ್ತು'),
              ('ಹೇಳಿ','ಹೇಳಬೇಡಿ'), ('ತುಂಬಿಸಿ','ತುಂಬಿಸಬೇಡಿ'), ('ಕಚೇರಿ','ಮನೆ')],
+            [('अनन्या','अनिता'), ('430','530'), ('430','430 या 530'),
+             ('5 मिनट','10 मिनट'), ('बता देना','मत बताओ'),
+             ('फ्यूल अगर','फ्यूल मत लो अगर'), ('ऑफिस','घर'), ('ना हो','हो')],
         ]
         for clauses, changes in zip(LANGUAGES, mutations):
             text = ', '.join(clauses)
@@ -58,6 +63,14 @@ class SlotTests(unittest.TestCase):
                 with self.subTest(text=value):
                     self.assertIsNone(signature_slots(value))
                     self.assertEqual(MockEvon().plan_mission(planning_input(value)).tasks, [])
+
+    def test_devanagari_lateness_and_contextual_time(self):
+        text = 'मीटिंग के लिए लेट हो रहा हूँ, ' + ' और '.join(LANGUAGES[3])
+        self.assertIsNotNone(signature_slots(text))
+        for time in ['4:30', '04:30', 'four thirty']:
+            self.assertIsNotNone(signature_slots(text.replace('430', time)))
+        for changed in ['430 मिनट', '1430', '4300', '530', '430 या 530']:
+            self.assertIsNone(signature_slots(text.replace('430', changed)))
 
     def test_supported_hinglish_persistent_completion_and_rejection(self):
         text = 'Meeting ke liye late ho raha hoon, Ananya ko batao, 4:30 poochho, office ke paas parking dhundo, aur fuel agar 5 minutes se zyada detour na ho.'
